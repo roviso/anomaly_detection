@@ -1,16 +1,27 @@
 from pydantic import BaseModel
+from typing import Optional
+from app.schemas.common import IDModelMixin, DateTimeModelMixin
+
 
 class BloodBase(BaseModel):
     blood_type: str
-    is_available: bool
     details: str
-
-class BloodCreate(BloodBase):
-    pass
-
-class Blood(BloodBase):
-    id: int
     hospital_id: int
 
     class Config:
         orm_mode = True
+
+
+class BloodCreate(BloodBase):
+    is_available: bool
+
+class BloodUpdate(BloodBase):
+    is_available: bool
+
+
+class BloodInDBBase(BloodBase, IDModelMixin, DateTimeModelMixin):
+    class Config:
+        orm_mode = True
+
+class Blood(BloodBase):
+    pass

@@ -17,8 +17,8 @@ class HospitalUpdate(HospitalBase):
     address: str = None
 
 class HospitalInDBBase(HospitalCreate, IDModelMixin, DateTimeModelMixin):
-    # ambulances: List[Ambulance] = []
-    # blood_samples: List[Blood] = []  # Assuming Blood schema is defined
+    ambulances: List[Ambulance] = []
+    blood_samples: List[Blood] = []  # Assuming Blood schema is defined
 
     class Config:
         orm_mode = True

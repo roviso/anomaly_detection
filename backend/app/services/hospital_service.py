@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session,joinedload
 from sqlalchemy.future import select
 from sqlalchemy.exc import NoResultFound
 from typing import List
@@ -17,14 +17,21 @@ async def create_hospital(db: Session, hospital_data: HospitalCreate):
 
 async def get_hospital(db: Session, hospital_id: int) -> HospitalModel:
     try:
-        result = await db.execute(select(HospitalModel).where(HospitalModel.id == hospital_id))
-        return result.scalars().one()
+        # result = await db.execute(select(HospitalModel).where(HospitalModel.id == hospital_id))
+        # Eager loading the relationships using options
+        result = await db.execute(select(HospitalModel).options(joinedload("ambulances"), joinedload("blood_samples")).where(HospitalModel.id == hospital_id))
+        
+        # Applying the unique() method to handle joined eager loads
+        return result.unique().scalars().one()
     except NoResultFound:
         return None
 
 async def get_all_hospitals(db: Session, skip: int = 0, limit: int = 100) -> List[HospitalModel]:
-    result = await db.execute(select(HospitalModel).offset(skip).limit(limit))
-    return result.scalars().all()
+    # Eager loading the relationships using options
+    result = await db.execute(select(HospitalModel).options(joinedload("ambulances"), joinedload("blood_samples")).offset(skip).limit(limit))
+    
+    # Applying the unique() method to handle joined eager loads
+    return result.unique().scalars().all()
 
 async def update_hospital(db: Session, hospital_id: int, hospital: HospitalUpdate) -> HospitalModel:
     db_hospital = await get_hospital(db, hospital_id)

@@ -19,7 +19,10 @@ async def create_hospital(hospital: HospitalCreate, db: Session = Depends(get_db
 @router.get("/gethospitals", response_model=List[Hospital])
 async def read_hospitals(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     try:
-        return await hospital_service.get_all_hospitals(db, skip=skip, limit=limit)
+        hospitals = await hospital_service.get_all_hospitals(db, skip=skip, limit=limit)
+        # print("hospital is: ", hospitals[1].__dict__)
+        return hospitals
+    
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -27,6 +30,7 @@ async def read_hospitals(skip: int = 0, limit: int = 100, db: Session = Depends(
 async def read_hospital(hospital_id: int, db: Session = Depends(get_db)):
     try:
         hospital = await hospital_service.get_hospital(db, hospital_id)
+        # print("hospital is: ", hospital.__dict__)
         if hospital is None:
             raise HTTPException(status_code=404, detail="Hospital not found")
         return hospital
