@@ -1,0 +1,28 @@
+/* src/components/LandingPage.css */
+.landing-container {
+    text-align: center;
+    padding: 50px;
+    max-width: 600px;
+    margin: auto;
+}
+
+.landing-container h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.landing-link {
+    display: inline-block;
+    margin: 0 10px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.landing-link:hover {
+    background-color: #0056b3;
+}

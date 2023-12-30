@@ -1,0 +1,21 @@
+2023-12-28 13:18:48,302 - INFO - BEGIN (implicit)
+2023-12-28 13:18:48,314 - INFO - SELECT hospitals.id, hospitals.created_at, hospitals.updated_at, hospitals.name, hospitals.address 
+FROM hospitals 
+ LIMIT %s OFFSET %s
+2023-12-28 13:18:48,314 - INFO - [generated in 0.00031s] (100, 0)
+2023-12-28 13:18:48,324 - INFO - 127.0.0.1 1703748828.321711 "GET /dashboard/hospitals/gethospitals HTTP/1.1" 200 21.592140197753906 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" - - {} {} {"skip": "0", "limit": "100"}
+2023-12-28 13:18:48,325 - INFO - ROLLBACK
+2023-12-28 13:18:52,333 - INFO - BEGIN (implicit)
+2023-12-28 13:18:52,336 - INFO - SELECT users.id, users.created_at, users.updated_at, users.username, users.email, users.password, users.is_active 
+FROM users 
+WHERE users.username = %s
+2023-12-28 13:18:52,337 - INFO - [generated in 0.00100s] ('postgres',)
+2023-12-28 13:18:52,672 - INFO - 127.0.0.1 1703748832.672565 "POST /dashboard/users/login HTTP/1.1" 200 343.66297721862793 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" - - {} {} {}
+2023-12-28 13:18:52,673 - INFO - ROLLBACK
+2023-12-28 13:18:52,697 - INFO - BEGIN (implicit)
+2023-12-28 13:18:52,698 - INFO - SELECT hospitals.id, hospitals.created_at, hospitals.updated_at, hospitals.name, hospitals.address 
+FROM hospitals 
+ LIMIT %s OFFSET %s
+2023-12-28 13:18:52,698 - INFO - [cached since 4.384s ago] (100, 0)
+2023-12-28 13:18:52,701 - INFO - 127.0.0.1 1703748832.7013 "GET /dashboard/hospitals/gethospitals HTTP/1.1" 200 4.230260848999023 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" - - {} {} {"skip": "0", "limit": "100"}
+2023-12-28 13:18:52,706 - INFO - ROLLBACK

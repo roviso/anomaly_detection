@@ -1,0 +1,64 @@
+/* src/components/AccountDetail.css */
+.account-details-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.account-details-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+
+.account-detail {
+    margin: 10px 0;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f1f1;
+    font-size: 16px;
+    color: #555;
+}
+
+.account-detail:last-child {
+    border-bottom: none;
+}
+
+.account-detail-label {
+    font-weight: 600;
+    color: #333;
+    margin-right: 10px;
+}
+
+/* Additional styling for buttons, links, etc., if needed */
+/* Additional styles in AccountDetail.css */
+
+.account-detail-form input {
+    display: block;
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.edit-button, .save-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-button {
+    background-color: #2196F3;
+}
+
+.edit-button:hover, .save-button:hover {
+    opacity: 0.9;
+}
