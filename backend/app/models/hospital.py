@@ -9,6 +9,10 @@ class Hospital(Base, IDModelMixin, DateTimeModelMixin):
     
     name = Column(String, index=True)
     address = Column(String)
+    available_icu_beds = Column(Integer)
+    available_ventilators = Column(Integer)
+    available_isolation_beds = Column(Integer)
+    oxygen_support_available = Column(Boolean)
 
-    ambulances = relationship("Ambulance", back_populates="hospital")
-    blood_samples = relationship("Blood", back_populates="hospital")
+    ambulances = relationship("Ambulance", back_populates="hospital", lazy='selectin')
+    blood_samples = relationship("Blood", back_populates="hospital", lazy='selectin')

@@ -2,14 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axiosConfig';
 import { useParams, useNavigate } from 'react-router-dom';
+import './HospitalEdit.css';
 
 const HospitalEdit = () => {
-    const [hospital, setHospital] = useState({ name: '', address: '' });
+    const [hospital, setHospital] = useState({ name: '', address: '', available_icu_beds: 0, available_ventilators: 0, available_isolation_beds: 0, oxygen_support_available: false });
     const { id } = useParams();
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Fetch the current details of the hospital
         const fetchHospitalDetails = async () => {
             try {
                 const response = await axios.get(`/dashboard/hospitals/profile/detail/${id}`);
@@ -25,14 +25,14 @@ const HospitalEdit = () => {
         e.preventDefault();
         try {
             await axios.put(`/dashboard/hospitals/hospitals/${id}/update`, hospital);
-            navigate('/dashboard'); // Redirect to dashboard after successful update
+            navigate('/dashboard');
         } catch (error) {
             console.error("Error updating hospital", error);
         }
     };
 
     return (
-        <div>
+        <div className="container">
             <h1>Edit Hospital</h1>
             <form onSubmit={handleSubmit}>
                 <input 
@@ -49,6 +49,36 @@ const HospitalEdit = () => {
                     placeholder="Address"
                     required
                 />
+                <input 
+                    type="number"
+                    value={hospital.available_icu_beds}
+                    onChange={(e) => setHospital({ ...hospital, available_icu_beds: parseInt(e.target.value, 10) })}
+                    placeholder="Available ICU Beds"
+                    required
+                />
+                <input 
+                    type="number"
+                    value={hospital.available_ventilators}
+                    onChange={(e) => setHospital({ ...hospital, available_ventilators: parseInt(e.target.value, 10) })}
+                    placeholder="Available Ventilators"
+                    required
+                />
+                <input 
+                    type="number"
+                    value={hospital.available_isolation_beds}
+                    onChange={(e) => setHospital({ ...hospital, available_isolation_beds: parseInt(e.target.value, 10) })}
+                    placeholder="Available Isolation Beds"
+                    required
+                />
+                <label>
+                    <input 
+                        type="checkbox"
+                        checked={hospital.oxygen_support_available}
+                        onChange={(e) => setHospital({ ...hospital, oxygen_support_available: e.target.checked })}
+                    />
+                    Oxygen Support Available
+                </label>
+                
                 <button type="submit">Update Hospital</button>
             </form>
         </div>

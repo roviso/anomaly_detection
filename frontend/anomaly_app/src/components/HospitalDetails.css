@@ -1,0 +1,21 @@
+/* src/components/HospitalDetails.css */
+.hospital-details-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+}
+
+.details-section {
+    margin-top: 20px;
+}
+
+.detail-item {
+    margin-bottom: 8px;
+}
+
+.edit-link {
+    color: #2196F3; /* Blue */
+    text-decoration: none;
+    margin-top: 10px;
+    display: block;
+}

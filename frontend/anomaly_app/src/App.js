@@ -8,6 +8,11 @@ import Register from './components/register';
 import Dashboard from './components/Dashboard';
 import HospitalDetails from './components/HospitalDetails';
 import HospitalForm from './components/HospitalForm';
+import EditAmbulance from './components/EditAmbulance';
+import EditAmbulanceForm from './components/EditAmbulanceForm'; // Create this file
+import AddAmbulance from './components/AddAmbulance';
+import EditBlood from './components/EditBlood';
+import AddBlood from './components/AddBlood';
 import HospitalEdit from './components/HospitalEdit';
 import AccountDetail from './components/AccountDetail';
 import { AuthProvider } from './context/AuthContext';
@@ -27,6 +32,14 @@ function App() {
           <Route path="/hospitals/profile/detail/:id" element={<HospitalDetails />} />
           <Route path="/create-hospital" element={<HospitalForm />} />
           <Route path="/update-hospital/:id" element={<HospitalEdit />} />
+
+          <Route path="/hospitals/:hospitalId/edit-ambulance" element={<EditAmbulance />} />
+          <Route path="/hospitals/:id/edit-ambulance/:ambulanceId" element={<EditAmbulanceForm />} />
+          <Route path="/hospitals/:hospitalId/add-ambulance" element={<AddAmbulance />} />
+
+
+          <Route path="/hospitals/:hospitalId/edit-blood" element={<EditBlood />} />
+          <Route path="/hospitals/:hospitalId/add-blood" element={<AddBlood />} />
           {/* Define routes for other components as needed */}
         </Routes>
     </Router>

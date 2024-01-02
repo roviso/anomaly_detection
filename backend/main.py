@@ -80,6 +80,13 @@ async def startup_event():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         try:
+            # Delete all records from each table
+            # from sqlalchemy import delete
+
+            # for table in reversed(Base.metadata.sorted_tables):
+            # await conn.execute(delete(table))
+
+            # await conn.execute(select(1))
             await conn.execute(select(1))
             # logger.info("Database connection established")
         except SQLAlchemyError as e:

@@ -23,5 +23,5 @@ class BloodInDBBase(BloodBase, IDModelMixin, DateTimeModelMixin):
     class Config:
         orm_mode = True
 
-class Blood(BloodBase):
+class Blood(BloodInDBBase):
     pass

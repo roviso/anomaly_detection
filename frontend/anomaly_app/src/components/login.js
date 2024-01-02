@@ -1,8 +1,10 @@
 // src/components/Login.js
+
 import React, { useState, useContext } from 'react';
 import axios from '../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import './Login.css'; // Import the CSS file
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -15,15 +17,16 @@ const Login = () => {
         try {
             const response = await axios.post('/dashboard/users/login', { username, password });
             console.log("User data: ", response.data)
-            login(response.data); // Update the global state with user data
-            navigate('/dashboard'); // Redirect to the dashboard
+            login(response.data);
+            navigate('/dashboard');
         } catch (error) {
-            console.error("Login failed", error.response); // Handle login error
+            console.error("Login failed", error.response);
         }
     };
 
     return (
-        <div>
+        <div className="container"> {/* Added a container class */}
+            <h2>Login</h2>
             <form onSubmit={handleLogin}>
                 <input 
                     type="text"

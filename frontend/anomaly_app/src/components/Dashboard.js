@@ -41,6 +41,10 @@ const Dashboard = () => {
                         <tr>
                             <th>Name</th>
                             <th>Address</th>
+                            <th>available_icu_beds</th>
+                            <th>available_ventilators</th>
+                            <th>available_isolation_beds</th>
+                            <th>oxygen_support_available</th>
                             <th>Ambulance</th>
                             <th>Blood</th>
                             <th>Actions</th>
@@ -51,6 +55,10 @@ const Dashboard = () => {
                             <tr key={hospital.id}>
                                 <td>{hospital.name}</td>
                                 <td>{hospital.address}</td>
+                                <td>{hospital.available_icu_beds}</td>
+                                <td>{hospital.available_ventilators}</td>
+                                <td>{hospital.available_isolation_beds}</td>
+                                <td>{hospital.oxygen_support_available ? 'Yes' : 'No'}</td>
                                 <td>
                                     {hospital.ambulances.map((ambulance) => (
                                         <div key={ambulance.id}>

@@ -7,13 +7,41 @@ from app.models.hospital import Hospital as HospitalModel
 from app.schemas.hospital import HospitalCreate, HospitalUpdate
 from fastapi import Depends
 from config.db import get_db
+import anyio
+
+
 
 async def create_hospital(db: Session, hospital_data: HospitalCreate):
-    new_hospital = HospitalModel(name=hospital_data.name, address=hospital_data.address)
+    print(hospital_data)
+    # new_hospital = HospitalModel(name=hospital_data.name, address=hospital_data.address, available_ventilators= hospital_data.available_ventilators,available_isolation_beds= hospital_data.available_isolation_beds,oxygen_support_available= hospital_data.oxygen_support_available)
+    new_hospital = HospitalModel(**hospital_data.dict())
+    print("_______11111____________")
     db.add(new_hospital)
+    print("_______12222221111____________")
     await db.commit()
+    print("_______1111333331____________")
     await db.refresh(new_hospital)
+    print("_______11eee5111____________")
     return new_hospital
+# from sqlalchemy.ext.asyncio import AsyncSession
+
+# async def create_hospital(db: AsyncSession, hospital_data: HospitalCreate):
+#     print(hospital_data)
+#     new_hospital = HospitalModel(**hospital_data.dict())
+
+#     async with anyio.create_task_group() as tg:
+#         tg.start_soon(add_hospital, db, new_hospital)
+    
+#     return new_hospital
+
+# async def add_hospital(db: AsyncSession, new_hospital: HospitalModel):
+#     async with db.begin():
+#         db.add(new_hospital)
+#         await db.flush()
+#     await db.refresh(new_hospital)
+
+
+
 
 async def get_hospital(db: Session, hospital_id: int) -> HospitalModel:
     try:

@@ -20,7 +20,7 @@ async def create_hospital(hospital: HospitalCreate, db: Session = Depends(get_db
 async def read_hospitals(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     try:
         hospitals = await hospital_service.get_all_hospitals(db, skip=skip, limit=limit)
-        # print("hospital is: ", hospitals[1].__dict__)
+        print("hospital is: ", hospitals[1].__dict__)
         return hospitals
     
     except Exception as e:

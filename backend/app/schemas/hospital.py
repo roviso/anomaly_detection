@@ -8,6 +8,13 @@ from typing import List
 
 class HospitalBase(BaseModel):
     name: constr(min_length=3, max_length=100)
+    available_icu_beds: int = 0
+    available_ventilators: int = 0
+    available_isolation_beds: int = 0
+    oxygen_support_available: bool = True
+
+    class Config:
+        orm_mode = True
 
 
 class HospitalCreate(HospitalBase):
