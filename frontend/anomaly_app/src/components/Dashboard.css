@@ -71,3 +71,19 @@ tr:hover {
     text-decoration: none;
     margin-right: 10px;
 }
+
+
+.action-button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.action-separator {
+    display: inline-block;
+    width: 10px; /* Adjust the spacing as needed */
+}

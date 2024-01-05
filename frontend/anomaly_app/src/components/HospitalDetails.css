@@ -1,21 +1,52 @@
 /* src/components/HospitalDetails.css */
 .hospital-details-container {
-    padding: 20px;
     max-width: 800px;
     margin: auto;
+    padding: 20px;
+}
+
+.details-card {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .details-section {
-    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-.detail-item {
-    margin-bottom: 8px;
+.details-section h3 {
+    margin-bottom: 15px;
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.details-table th, .details-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.details-table th {
+    background-color: #007bff;
+    color: white;
 }
 
 .edit-link {
-    color: #2196F3; /* Blue */
-    text-decoration: none;
+    display: inline-block;
     margin-top: 10px;
-    display: block;
+    background-color: #28a745;
+    color: white;
+    padding: 8px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.edit-link:hover {
+    background-color: #218838;
 }

@@ -28,32 +28,56 @@ const HospitalDetails = () => {
 
     return (
         <div className="hospital-details-container">
-            <h2>Hospital Details</h2>
-            <p>Name: {hospital.name}</p>
-            <p>Address: {hospital.address}</p>
+            <h2>{hospital.name} - Hospital Details</h2>
+            <div className="details-card">
+                <p><strong>Address:</strong> {hospital.address}</p>
+                <p><strong>Available ICU Beds:</strong> {hospital.available_icu_beds}</p>
+                <p><strong>Available Ventilators:</strong> {hospital.available_ventilators}</p>
+                <p><strong>Available Isolation Beds:</strong> {hospital.available_isolation_beds}</p>
+                <p><strong>Oxygen Support:</strong> {hospital.oxygen_support_available ? 'Yes' : 'No'}</p>
+            </div>
 
-            {/* Ambulance details */}
             <div className="details-section">
                 <h3>Ambulance Details</h3>
-                {hospital.ambulances.map((ambulance) => (
-                    <div key={ambulance.id} className="detail-item">
-                        License Plate: {ambulance.license_plate}
-                        {/* Add more details as needed */}
-                    </div>
-                ))}
+                <table className="details-table">
+                    <thead>
+                        <tr>
+                            <th>License Plate</th>
+                            {/* Add more headers as needed */}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {hospital.ambulances.map((ambulance) => (
+                            <tr key={ambulance.id}>
+                                <td>{ambulance.license_plate}</td>
+                                {/* Add more details as needed */}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
                 <Link to={`/hospitals/${hospital.id}/edit-ambulance`} className="edit-link">
                     Edit Ambulance
                 </Link>
             </div>
 
-            {/* Blood details */}
             <div className="details-section">
                 <h3>Blood Details</h3>
-                {hospital.blood_samples.map((bloodSample) => (
-                    <div key={bloodSample.id} className="detail-item">
-                        Blood Type: {bloodSample.blood_type}, Details: {bloodSample.details}
-                    </div>
-                ))}
+                <table className="details-table">
+                    <thead>
+                        <tr>
+                            <th>Blood Type</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {hospital.blood_samples.map((bloodSample) => (
+                            <tr key={bloodSample.id}>
+                                <td>{bloodSample.blood_type}</td>
+                                <td>{bloodSample.details}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
                 <Link to={`/hospitals/${hospital.id}/edit-blood`} className="edit-link">
                     Edit Blood
                 </Link>

@@ -15,13 +15,9 @@ async def create_hospital(db: Session, hospital_data: HospitalCreate):
     print(hospital_data)
     # new_hospital = HospitalModel(name=hospital_data.name, address=hospital_data.address, available_ventilators= hospital_data.available_ventilators,available_isolation_beds= hospital_data.available_isolation_beds,oxygen_support_available= hospital_data.oxygen_support_available)
     new_hospital = HospitalModel(**hospital_data.dict())
-    print("_______11111____________")
     db.add(new_hospital)
-    print("_______12222221111____________")
     await db.commit()
-    print("_______1111333331____________")
     await db.refresh(new_hospital)
-    print("_______11eee5111____________")
     return new_hospital
 # from sqlalchemy.ext.asyncio import AsyncSession
 

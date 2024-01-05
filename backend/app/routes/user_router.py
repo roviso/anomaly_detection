@@ -1,27 +1,135 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Form
+from fastapi import APIRouter, Depends, HTTPException, status, Form, Request, Response
 from sqlalchemy.orm import Session
 from typing import List
 from typing_extensions import Annotated
 from config.db import get_db
-from app.services import user_service
+from app.services import user_service, session_service
 from app.schemas.user import UserCreate, UserUpdate, User
 from pydantic import BaseModel
+from fastapi_csrf_protect import CsrfProtect
+from fastapi_sessions.frontends.implementations import SessionCookie
+from fastapi_csrf_protect.exceptions import MissingTokenError
+
+from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
+from fastapi import Cookie
+from config.settings import authconfig
+from pydantic import BaseSettings
+from uuid import uuid4
+from app.utils.security import session_cookie, get_session_id_from_cookie
+
+
+
+
+
+
+
+class CsrfConfig(BaseSettings):
+    secret_key: str
+    max_age: int
+
+    class Config:
+        env_prefix = 'CSRF_'
+
+csrf_protect = CsrfProtect()
+
+@csrf_protect.load_config
+def get_csrf_config():
+    return CsrfConfig(secret_key=authconfig.CSRF_SECRET_KEY, max_age=3600)
 
 router = APIRouter()
 
-class LoginSchema(BaseModel):
-    username: str
-    password: str
+class LoginSchema:
+    def __init__(self, username: str = Form(...), password: str = Form(...)):
+        self.username = username
+        self.password = password
 
+# @router.get("/csrf_token", response_model=str)
+# async def get_csrf_token(response: Response):
+#     token, signed_token = csrf_protect.generate_csrf(secret_key=authconfig.CSRF_SECRET_KEY)
+#     print("token: ", token)
+#     print("\n/n\n/n signed_token: ",signed_token)
+    # csrf_protect.set_csrf_cookie(signed_token, response)
+#     return token
 
-@router.post("/login", response_model= User)
-async def login(user: LoginSchema, db: Session = Depends(get_db)):
-    try:
-        users = await user_service.login_user(db, user.username, user.password)
-        return users
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+@router.get("/csrf_token", response_model=str)
+async def get_csrf_token(response: Response):
+    token, signed_token = csrf_protect.generate_csrf(secret_key=authconfig.CSRF_SECRET_KEY)
+    # Set the CSRF token as a cookie in the response
+    response.set_cookie(
+        key="fastapi-csrf-token",
+        value=signed_token,
+        httponly=True,  # Recommended to prevent access via JavaScript
+        samesite="None",  # Important for cross-origin requests
+        secure=True  # Recommended, send only over HTTPS
+    )
+    # csrf_protect.set_csrf_cookie(signed_token, response)
+
+    # Generate a new session ID
     
+    # session_id = uuid4()
+
+    # # Attach session ID to the response cookie
+    # session_cookie.attach_to_response(response, session_id)
+    #  # Set the session ID as a cookie in the response
+    # response.set_cookie(
+    #     key="sessionId",  # Name of the cookie
+    #     value=session_id,  # Value of the cookie
+    #     httponly=True,     # Recommended to prevent access via JavaScript
+    #     samesite="None",   # Important for cross-origin requests, use "Lax" for same-site requests
+    #     secure=True        # Recommended, send only over HTTPS
+    # )
+
+
+
+
+    return token
+
+
+@router.post("/login" )
+async def login(response: Response, request: Request, username: str = Form(...), password: str= Form(...) , db: Session = Depends(get_db)):
+    print("received_login request")
+    print(request.headers,username,password)
+    # try:
+    print("/n/n validating csrf")
+    await csrf_protect.validate_csrf(request=request)
+    print("/n/n DONE csrf")
+    # except MissingTokenError:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing or invalid CSRF token")
+
+    authenticated_user = await user_service.login_user(db, username, password)
+    if not authenticated_user:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    session_id = await session_service.create_session(db,authenticated_user.id)
+
+    response.set_cookie(
+        key="sessionId",  # Name of the cookie
+        value=session_id,  # Value of the cookie
+        httponly=True,     # Recommended to prevent access via JavaScript
+        samesite="None",   # Important for cross-origin requests, use "Lax" for same-site requests
+        secure=True        # Recommended, send only over HTTPS
+    )
+
+    
+    # Serialize user data for response
+    # user_json = jsonable_encoder(authenticated_user)
+
+    # response = JSONResponse(content=user_json)
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    # Return a simple response indicating success
+    return {"message": "Login successful"}
+
+
+
+@router.post("/logout")
+async def logout(response: Response, db: Session = Depends(get_db), session_id: str = Depends(get_session_id_from_cookie)):
+    await session_service.delete_session(db, session_id)
+    response.delete_cookie(key="sessionId")
+    return {"message": "Logged out"}
+
+
 
 @router.get("/get_user", response_model=List[User])
 async def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -70,7 +178,7 @@ async def status_user(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{user_id}/update", response_model=User)
-async def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db)):
+async def update_user(user_id: int, user: UserUpdate, csrf_token: str = Depends(CsrfProtect), db: Session = Depends(get_db)):
     try:
         updated_user = await user_service.update_user(db, user_id, user)
         if updated_user is None:
@@ -80,7 +188,7 @@ async def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/{user_id}/delete", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id: int, db: Session = Depends(get_db)):
+async def delete_user(user_id: int,csrf_token: str = Depends(CsrfProtect),  db: Session = Depends(get_db)):
     try:
         success = await user_service.delete_user(db, user_id)
         if not success:

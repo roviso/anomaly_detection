@@ -1,4 +1,3 @@
-// src/components/Header.js
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -18,8 +17,10 @@ const Header = () => {
             <div className="logo">
                 <Link to="/dashboard">
                     <img src="hms_logo.jpg" alt="Logo" style={{ height: '50px' }} />
-                    {user && <span>Hello, {user.username}</span>} {/* Display user's name */}
                 </Link>
+            </div>
+            <div className="username">
+                {user && <span>Hello, {user.username}</span>} {/* Centered user's name */}
             </div>
             <div className="settings-dropdown">
                 <button className="dropdown-button">Settings</button>

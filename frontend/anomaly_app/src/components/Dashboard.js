@@ -12,13 +12,12 @@ const Dashboard = () => {
 
     useEffect(() => {
         if (!user) {
-            navigate('/');
+            navigate('/'); // Redirect to login if not authenticated
             return;
         }
-
         const fetchHospitals = async () => {
             try {
-                const response = await axios.get('/dashboard/hospitals/gethospitals?skip=0&limit=100');
+                const response = await axios.get('/dashboard/hospitals/gethospitals?skip=0&limit=100', {withCredentials: true } );
                 console.log(response.data);
                 setHospitals(response.data);
             } catch (error) {
@@ -41,12 +40,12 @@ const Dashboard = () => {
                         <tr>
                             <th>Name</th>
                             <th>Address</th>
-                            <th>available_icu_beds</th>
-                            <th>available_ventilators</th>
-                            <th>available_isolation_beds</th>
-                            <th>oxygen_support_available</th>
-                            <th>Ambulance</th>
-                            <th>Blood</th>
+                            <th>ICU Beds</th>
+                            <th>Ventilators</th>
+                            <th>Isolation Beds</th>
+                            <th>Oxygen Support</th>
+                            <th>Ambulances</th>
+                            <th>Blood Samples</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -59,24 +58,13 @@ const Dashboard = () => {
                                 <td>{hospital.available_ventilators}</td>
                                 <td>{hospital.available_isolation_beds}</td>
                                 <td>{hospital.oxygen_support_available ? 'Yes' : 'No'}</td>
-                                <td>
-                                    {hospital.ambulances.map((ambulance) => (
-                                        <div key={ambulance.id}>
-                                            License Plate: {ambulance.license_plate}, {/* Add more details as needed */}
-                                        </div>
-                                    ))}
-                                </td>
-                                <td>
-                                    {hospital.blood_samples.map((bloodSample) => (
-                                        <div key={bloodSample.id}>
-                                            Blood Type: {bloodSample.blood_type}, Details: {bloodSample.details}
-                                        </div>
-                                    ))}
-                                </td>
+                                <td>{hospital.ambulances.length}</td> {/* Show ambulance count */}
+                                <td>{hospital.blood_samples.length}</td> {/* Show blood sample count */}
                                 <td>
                                     <Link to={`/hospitals/profile/detail/${hospital.id}`} className="action-button">
                                         View
                                     </Link>
+                                    <span className="action-separator"></span> {/* Separator for spacing */}
                                     <Link to={`/update-hospital/${hospital.id}`} className="action-button">
                                         Edit
                                     </Link>
@@ -88,6 +76,7 @@ const Dashboard = () => {
             </div>
         </div>
     );
+    
 };
 
 export default Dashboard;
