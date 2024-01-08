@@ -5,25 +5,38 @@ import { useParams } from 'react-router-dom';
 
 const EditAmbulanceForm = () => {
   const { id, ambulanceId } = useParams();
+  const [csrfToken, setCsrfToken] = useState('');
   const [ambulance, setAmbulance] = useState({
-    license_plate: '',
-    hospital_id: 0,
-    service_active: true,
+    driver_name: '',
+    contact_number: '',
+    alternative_contact_number: '',
+    status: '',
+    hospital_id: parseInt(id),
   });
 
   useEffect(() => {
+    
+    axios.get('/dashboard/users/csrf_token', { withCredentials: true })
+    .then(response => {
+        setCsrfToken(response.data);
+        console.log("Received CSRF token: ", response.data);
+    })
+    .catch(error => {
+        console.error("Error fetching CSRF token", error.response);
+    });
+
+
     const fetchAmbulance = async () => {
       try {
-        const response = await axios.get(`/dashboard/hospitals/profile/detail/${id}`);
-        const selectedAmbulance = response.data.ambulances.find(a => a.id === parseInt(ambulanceId));
-        setAmbulance(selectedAmbulance || {});
+        const response = await axios.get(`/dashboard/ambulance/details/${ambulanceId}`);
+        setAmbulance(response.data || {});
       } catch (error) {
         console.error('Error fetching ambulance', error);
       }
     };
 
     fetchAmbulance();
-  }, [id, ambulanceId]);
+  }, [ambulanceId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,9 +49,12 @@ const EditAmbulanceForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`/dashboard/ambulance/details/${ambulanceId}/update`, ambulance);
-      // Redirect to the ambulance list or update the state as needed
-      // Replace the following line with your redirection logic
+      await axios.put(`/dashboard/ambulance/details/${ambulanceId}/update`, ambulance, {
+        headers: {
+            'X-CSRF-TOKEN': csrfToken
+        },
+        withCredentials: true,
+    });
       window.location.href = `/hospitals/${id}/edit-ambulance`;
     } catch (error) {
       console.error('Error updating ambulance', error);
@@ -50,10 +66,22 @@ const EditAmbulanceForm = () => {
       <h2>Edit Ambulance</h2>
       <form onSubmit={handleSubmit}>
         <label>
-          License Plate:
-          <input type="text" name="license_plate" value={ambulance.license_plate} onChange={handleChange} />
+          Driver Name:
+          <input type="text" name="driver_name" value={ambulance.driver_name} onChange={handleChange} />
         </label>
-        {/* Add more form fields as needed */}
+        <label>
+          Contact Number:
+          <input type="text" name="contact_number" value={ambulance.contact_number} onChange={handleChange} />
+        </label>
+        <label>
+          Alternative Contact Number:
+          <input type="text" name="alternative_contact_number" value={ambulance.alternative_contact_number} onChange={handleChange} />
+        </label>
+        <label>
+          Status:
+          <input type="text" name="status" value={ambulance.status} onChange={handleChange} />
+        </label>
+        {/* Add more form fields if needed */}
         <button type="submit">Update Ambulance</button>
       </form>
     </div>

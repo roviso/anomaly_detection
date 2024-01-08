@@ -1,23 +1,30 @@
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel
 from datetime import datetime
 from app.schemas.common import IDModelMixin, DateTimeModelMixin
 
-class AmbulanceBase(BaseModel):
-    license_plate: constr(min_length=5, max_length=10)
-    hospital_id: int
 
-    class Config:
-        orm_mode = True
+class AmbulanceBase(BaseModel):
+    driver_name: str
+    contact_number: str
+    alternative_contact_number: str
+    status: str
 
 class AmbulanceCreate(AmbulanceBase):
-    service_active: bool
+    hospital_id: int  # Assuming hospital_id is required for creating an ambulance
 
 class AmbulanceUpdate(AmbulanceBase):
-    service_active: bool = None
+    driver_name: str = None
+    contact_number: str = None
+    alternative_contact_number: str = None
+    status: str = None
+    hospital_id: int = None
 
 class AmbulanceInDBBase(AmbulanceBase, IDModelMixin, DateTimeModelMixin):
     class Config:
         orm_mode = True
 
 class Ambulance(AmbulanceInDBBase):
+    pass
+
+class AmbulanceInDB(AmbulanceInDBBase):
     pass

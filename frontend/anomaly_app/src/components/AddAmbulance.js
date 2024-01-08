@@ -1,50 +1,77 @@
 // AddAmbulance.js
-import React, { useState } from 'react';
+import React, {useEffect, useState } from 'react';
 import axios from '../utils/axiosConfig';
 import { useParams } from 'react-router-dom';
 
 const AddAmbulance = () => {
-  const {hospitalId } = useParams();
-  const [ambulanceData, setAmbulanceData] = useState({
-    license_plate: '',
-    hospital_id: parseInt(hospitalId),
-    service_active: true,
-  });
+    const { hospitalId } = useParams();
+    const [csrfToken, setCsrfToken] = useState('');
+    const [ambulanceData, setAmbulanceData] = useState({
+        driver_name: '',
+        contact_number: '',
+        alternative_contact_number: '',
+        status: '',
+        hospital_id: parseInt(hospitalId)
+    });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setAmbulanceData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+    useEffect(() => {
+      axios.get('/dashboard/users/csrf_token', { withCredentials: true })
+          .then(response => {
+              setCsrfToken(response.data);
+              console.log("Received CSRF token: ", response.data);
+          })
+          .catch(error => {
+              console.error("Error fetching CSRF token", error.response);
+          });
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      console.log(ambulanceData,'this is ambulance data')
-      await axios.post('/dashboard/ambulance/details/create', ambulanceData);
-      // Redirect to the ambulance list or update the state as needed
-      // Replace the following line with your redirection logic
-      window.location.href = `/hospitals/${hospitalId}/edit-ambulance`;
-    } catch (error) {
-      console.error('Error adding ambulance', error);
-    }
-  };
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setAmbulanceData(prevData => ({
+            ...prevData,
+            [name]: value
+        }));
+    };
 
-  return (
-    <div>
-      <h2>Add Ambulance</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          License Plate:
-          <input type="text" name="license_plate" value={ambulanceData.license_plate} onChange={handleChange} />
-        </label>
-        {/* Add more form fields as needed */}
-        <button type="submit">Add Ambulance</button>
-      </form>
-    </div>
-  );
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post('/dashboard/ambulance/details/create', ambulanceData, {
+              headers: {
+                  'X-CSRF-TOKEN': csrfToken
+              },
+              withCredentials: true,
+          });
+            window.location.href = `/hospitals/${hospitalId}/edit-ambulance`;
+        } catch (error) {
+            console.error('Error adding ambulance', error);
+        }
+    };
+
+    return (
+        <div>
+            <h2>Add Ambulance</h2>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    Driver Name:
+                    <input type="text" name="driver_name" value={ambulanceData.driver_name} onChange={handleChange} />
+                </label>
+                <label>
+                    Contact Number:
+                    <input type="text" name="contact_number" value={ambulanceData.contact_number} onChange={handleChange} />
+                </label>
+                <label>
+                    Alternative Contact Number:
+                    <input type="text" name="alternative_contact_number" value={ambulanceData.alternative_contact_number} onChange={handleChange} />
+                </label>
+                <label>
+                    Status:
+                    <input type="text" name="status" value={ambulanceData.status} onChange={handleChange} />
+                </label>
+                <button type="submit">Add Ambulance</button>
+            </form>
+        </div>
+    );
 };
 
 export default AddAmbulance;

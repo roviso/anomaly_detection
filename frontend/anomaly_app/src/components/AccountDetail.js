@@ -8,21 +8,31 @@ import { AuthContext } from '../context/AuthContext';
 const AccountDetail = () => {
     const [userDetails, setUserDetails] = useState(null);
     const [editMode, setEditMode] = useState(false);
+    const [csrfToken, setCsrfToken] = useState('');
     const { user } = useContext(AuthContext); // Access the logged-in user's details
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!user){
+
+        if (!user) {
             navigate('/');
             return;
-        } 
-    
+        }
+
         if (user && user.id) {
-            console.log(user)
+            axios.get('/dashboard/users/csrf_token', { withCredentials: true })
+            .then(response => {
+                setCsrfToken(response.data);
+                console.log("Received CSRF token: ", response.data);
+            })
+            .catch(error => {
+                console.error("Error fetching CSRF token", error.response);
+            });
+            
             fetchUserDetails(user.id);
         }
-    }, [user,navigate]);
+    }, [user, navigate]);
 
     const fetchUserDetails = async (userId) => {
         try {
@@ -40,7 +50,19 @@ const AccountDetail = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.put(`/dashboard/users/${user.id}/update`, userDetails);
+            const formData = new URLSearchParams();
+            formData.append('email', userDetails.email);
+            formData.append('username', userDetails.username);
+            // Add other fields as necessary
+
+            const response = await axios.put(`/dashboard/users/${user.id}/update`, formData, {
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                withCredentials: true,
+            });
+
             setUserDetails(response.data);
             setEditMode(false);
         } catch (error) {

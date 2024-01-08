@@ -1,28 +1,50 @@
-/* src/components/HospitalEdit.css */
-
-.container {
-    max-width: 600px;
-    margin: 0 auto;
+.hospital-edit-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f3f3f3;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-form {
+.hospital-edit-container h1 {
+    text-align: center;
+}
+
+.hospital-edit-form {
     display: grid;
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
 }
 
-input, button, label {
-    padding: 0.5rem;
-    font-size: 1rem;
-}
-
-button {
-    background-color: #007bff;
-    color: #fff;
-    cursor: pointer;
-}
-
-label {
+.hospital-edit-form label {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.hospital-edit-form input[type="text"],
+.hospital-edit-form input[type="number"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.hospital-edit-form input[type="checkbox"] {
+    align-self: start;
+}
+
+.hospital-edit-form button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+.hospital-edit-form button:hover {
+    background-color: #0056b3;
 }

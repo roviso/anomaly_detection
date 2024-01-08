@@ -1,5 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from '../utils/axiosConfig';
+
 import { AuthContext } from '../context/AuthContext';
 import './Header.css';
 
@@ -7,10 +9,20 @@ const Header = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
+    const handleLogout = async () => {
+        try {
+            await axios.post('/dashboard/users/logout', {}, {
+                withCredentials: true,
+            });
+
+            logout(); // Update the state/context to reflect logout
+            navigate('/login'); // Redirect to login page
+        } catch (error) {
+            console.error("Logout failed", error.response);
+        }
     };
+
+
 
     return (
         <header className="header">

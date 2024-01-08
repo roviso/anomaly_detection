@@ -1,33 +1,44 @@
+// EditAmbulance.js
 import React, { useState, useEffect } from 'react';
 import axios from '../utils/axiosConfig';
 import { Link, useParams } from 'react-router-dom';
 
 const EditAmbulance = () => {
     const { hospitalId } = useParams();
+    const [csrfToken, setCsrfToken] = useState('');
     const [ambulances, setAmbulances] = useState([]);
 
-    const fetchAmbulances = async () => {
-        try {
-            const response = await axios.get(`/dashboard/hospitals/profile/detail/${hospitalId}`);
-            setAmbulances(response.data.ambulances);
-        } catch (error) {
-            console.error('Error fetching ambulances', error);
-        }
-    };
-
     useEffect(() => {
-        const fetchData = async () => {
-            await fetchAmbulances();
+        axios.get('/dashboard/users/csrf_token', { withCredentials: true })
+            .then(response => {
+                setCsrfToken(response.data);
+                console.log("Received CSRF token: ", response.data);
+            })
+            .catch(error => {
+                console.error("Error fetching CSRF token", error.response);
+            });
+
+        const fetchAmbulances = async () => {
+            try {
+                const response = await axios.get(`/dashboard/hospitals/profile/detail/${hospitalId}`);
+                setAmbulances(response.data.ambulances);
+            } catch (error) {
+                console.error('Error fetching ambulances', error);
+            }
         };
 
-        fetchData();
-    }, [hospitalId]); // Removed `fetchAmbulances` from the dependency array
+        fetchAmbulances();
+    }, [hospitalId]);
 
     const handleDelete = async (ambulanceId) => {
         try {
-            await axios.delete(`/dashboard/ambulance/${ambulanceId}`);
-            // Refresh the ambulance list after deletion
-            await fetchAmbulances();
+            await axios.delete(`/dashboard/ambulance/${ambulanceId}`, {
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                withCredentials: true,
+            });
+            setAmbulances(ambulances.filter(ambulance => ambulance.id !== ambulanceId));
         } catch (error) {
             console.error('Error deleting ambulance', error);
         }
@@ -42,16 +53,20 @@ const EditAmbulance = () => {
             <table>
                 <thead>
                     <tr>
-                        <th>License Plate</th>
-                        {/* Add more ambulance details as needed */}
+                        <th>Driver Name</th>
+                        <th>Contact Number</th>
+                        <th>Alternative Contact Number</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {ambulances.map((ambulance) => (
                         <tr key={ambulance.id}>
-                            <td>{ambulance.license_plate}</td>
-                            {/* Add more ambulance details as needed */}
+                            <td>{ambulance.driver_name}</td>
+                            <td>{ambulance.contact_number}</td>
+                            <td>{ambulance.alternative_contact_number}</td>
+                            <td>{ambulance.status}</td>
                             <td>
                                 <Link to={`/hospitals/${hospitalId}/edit-ambulance/${ambulance.id}`} className="edit-link">
                                     Edit

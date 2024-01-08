@@ -7,14 +7,11 @@ from app.models.common import IDModelMixin,DateTimeModelMixin
 class Ambulance(Base, IDModelMixin, DateTimeModelMixin):
     __tablename__ = "ambulances"
     
-    license_plate = Column(String, unique=True, index=True)
-    service_active = Column(Boolean(), default=True)
-
     # New Fields
-    # driver_name = Column(String)
-    # contact_number = Column(String)
-    # alternative_contact_number = Column(String)
-    # status = Column(String)  # Assuming 'status' is a string field, update the type accordingly if needed
+    driver_name = Column(String)
+    contact_number = Column(String)
+    alternative_contact_number = Column(String)
+    status = Column(String)  # Assuming 'status' is a string field, update the type accordingly if needed
     
     hospital_id = Column(Integer, ForeignKey('hospitals.id'))
     hospital = relationship("Hospital", back_populates="ambulances")

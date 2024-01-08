@@ -18,7 +18,6 @@ const Dashboard = () => {
         const fetchHospitals = async () => {
             try {
                 const response = await axios.get('/dashboard/hospitals/gethospitals?skip=0&limit=100', {withCredentials: true } );
-                console.log(response.data);
                 setHospitals(response.data);
             } catch (error) {
                 console.error('Error fetching hospitals', error);
@@ -40,10 +39,22 @@ const Dashboard = () => {
                         <tr>
                             <th>Name</th>
                             <th>Address</th>
-                            <th>ICU Beds</th>
-                            <th>Ventilators</th>
-                            <th>Isolation Beds</th>
+                            <th>Opening Hour</th>
+                            <th>Closing Hour</th>
+                            <th>Contact Number</th>
+                            <th>Alt Contact Number</th>
+                            <th>Hospital Type</th>
+                            <th>Province</th>
+                            <th>District</th>
+                            <th>Total Beds</th>
+                            <th>Total ICU Beds</th>
+                            <th>Total Ventilators</th>
+                            <th>Total Isolation Beds</th>
+                            <th>Available ICU Beds</th>
+                            <th>Available Ventilators</th>
+                            <th>Available Isolation Beds</th>
                             <th>Oxygen Support</th>
+                            <th>Available Blood</th>
                             <th>Ambulances</th>
                             <th>Blood Samples</th>
                             <th>Actions</th>
@@ -54,17 +65,29 @@ const Dashboard = () => {
                             <tr key={hospital.id}>
                                 <td>{hospital.name}</td>
                                 <td>{hospital.address}</td>
+                                <td>{hospital.opening_hour}</td>
+                                <td>{hospital.closing_hour}</td>
+                                <td>{hospital.contact_number}</td>
+                                <td>{hospital.alternative_contact_number}</td>
+                                <td>{hospital.hospital_type}</td>
+                                <td>{hospital.province}</td>
+                                <td>{hospital.district}</td>
+                                <td>{hospital.total_beds}</td>
+                                <td>{hospital.total_icu_beds}</td>
+                                <td>{hospital.total_ventilators}</td>
+                                <td>{hospital.total_isolation_beds}</td>
                                 <td>{hospital.available_icu_beds}</td>
                                 <td>{hospital.available_ventilators}</td>
                                 <td>{hospital.available_isolation_beds}</td>
                                 <td>{hospital.oxygen_support_available ? 'Yes' : 'No'}</td>
-                                <td>{hospital.ambulances.length}</td> {/* Show ambulance count */}
-                                <td>{hospital.blood_samples.length}</td> {/* Show blood sample count */}
+                                <td>{hospital.available_blood ? 'Yes' : 'No'}</td>
+                                <td>{hospital.ambulances.length}</td>
+                                <td>{hospital.blood_samples.length}</td>
                                 <td>
                                     <Link to={`/hospitals/profile/detail/${hospital.id}`} className="action-button">
                                         View
                                     </Link>
-                                    <span className="action-separator"></span> {/* Separator for spacing */}
+                                    <span className="action-separator"></span>
                                     <Link to={`/update-hospital/${hospital.id}`} className="action-button">
                                         Edit
                                     </Link>
@@ -76,7 +99,6 @@ const Dashboard = () => {
             </div>
         </div>
     );
-    
 };
 
 export default Dashboard;

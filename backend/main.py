@@ -77,15 +77,6 @@ class CustomLoggingMiddleware(BaseHTTPMiddleware):
         cookies = request.cookies
 
         # Read and store the request body
-        content_type = request.headers.get('content-type', '')
-
-        # Clone the request body
-        # body = await request.body()
-
-        
-
-
-        # body_bytes = await request_clone.body()  # Read body
         content_type = request.headers.get("content-type", "")
 
 
@@ -161,9 +152,9 @@ async def startup_event():
             # from sqlalchemy import delete
 
             # for table in reversed(Base.metadata.sorted_tables):
-            # await conn.execute(delete(table))
+            #     await conn.execute(delete(table))
 
-            # await conn.execute(select(1))
+            #     await conn.execute(select(1))
             await conn.execute(select(1))
             # logger.info("Database connection established")
         except SQLAlchemyError as e:
