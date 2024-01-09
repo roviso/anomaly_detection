@@ -1,15 +1,16 @@
-from fastapi import FastAPI, HTTPException,Request
+from fastapi import FastAPI, HTTPException,Request,Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.future import select
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi_csrf_protect import CsrfProtect
 from config.settings import authconfig
-from config.db import engine, Base
-from app.routes import user_router, ambulance_router, account_router, hospital_router, blood_router
-import io
+from config.db import engine, Base, get_db
+from app.routes import user_router, ambulance_router, hospital_router, blood_router
+from app.services import log_service, session_service
+from app.schemas.log import HttpRequestLogSchema
 import time
 import json
 import logging
@@ -18,6 +19,7 @@ from starlette.datastructures import FormData  # Corrected import
 from starlette.types import ASGIApp, Receive, Scope, Send
 # from starlette.requests import Request
 from starlette.responses import Response
+from app.models.log import HttpRequestLog
 
 from urllib.parse import parse_qs
 
@@ -61,7 +63,7 @@ def clone_request(request: Request) -> Request:
 
 
 class CustomLoggingMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next, db: Session = Depends(get_db)):
         start_time = time.time()
         # Clone the request for logging purposes
         request_clone = clone_request(request)
@@ -75,24 +77,32 @@ class CustomLoggingMiddleware(BaseHTTPMiddleware):
         referrer = request.headers.get("referer", "-")
         user_agent = request.headers.get("user-agent", "-")
         cookies = request.cookies
+        # print(request.headers, dir(request.headers))
 
         # Read and store the request body
         content_type = request.headers.get("content-type", "")
 
-
+        response = await call_next(request_clone)
         form_data = {}
-
+        log_reponse_message = ''
+        print(f"CONTAIN TYPR: {content_type}")
         if "multipart/form-data" in content_type or "application/x-www-form-urlencoded" in content_type:
             form = await request_clone.form()
             form_data = {key: form[key] for key in form}
 
+            
+        # Read response body
+        response_body = b''
+        async for chunk in response.body_iterator:
+            response_body += chunk
+        log_response_messages = response_body.decode(response.charset)
+
+        # Recreate the response
+        new_response = Response(response_body, status_code=response.status_code, media_type=response.media_type, headers=dict(response.headers))
+
+
         body = form_data
-
-        response = await call_next(request_clone)
-
         response_status = response.status_code
-
-        # response_status = "444"
 
         process_time = (time.time() - start_time) * 1000
         post_params = {}
@@ -101,15 +111,46 @@ class CustomLoggingMiddleware(BaseHTTPMiddleware):
         
         # print(555555,post_params)
         get_params = request.query_params
-        log_message = (
+
+        # if log_message:
+
+        
+
+        # Use asynchronous context manager to manage the database session
+        async with get_db() as db:
+            user_id = await session_service.get_user_id_from_session(db,cookies['sessionId'])
+
+            log_data = HttpRequestLogSchema(
+                client_host=client_host,
+                request_time=request_time,
+                request_method=request_method,
+                request_path=request_path,
+                http_version=http_version,
+                referrer=referrer,
+                user_agent=user_agent,
+                user_id = user_id,
+                log_message=log_response_messages,
+                cookies=cookies,
+                post_params=post_params,  # Add logic to extract POST params
+                get_params=get_params,
+                body=body,  # Add logic to extract body
+                response_status=response_status,
+                process_time=process_time
+            )
+            print("_____WRITING LOG_________")
+            log_entry = await log_service.create_http_request_log(db,log_data)
+            print(f"Log entry Written to db: {log_entry.__dict__}")
+
+
+            log_message = (
             f'{client_host} {request_time} "{request_method} {request_path} HTTP/{http_version}" '
-            f'{response_status} {process_time}ms "{referrer}" "{user_agent}" '
-            f'- {json.dumps(cookies)} {json.dumps(dict(post_params))} {json.dumps(dict(get_params))} {json.dumps(body)}'
-        )
-        middleware_logger.info(log_message)
+            f'{response_status} {process_time}ms "{referrer}" "{user_agent}" "{user_id}"'
+            f'{log_response_messages} {json.dumps(cookies)} {json.dumps(dict(post_params))} {json.dumps(dict(get_params))} {json.dumps(body)}'
+            )
+            middleware_logger.info(log_message)
+            # Manually create a database session
         
-        
-        return response
+        return new_response
 
 
 
@@ -117,8 +158,7 @@ class CustomLoggingMiddleware(BaseHTTPMiddleware):
 app = FastAPI()
 app.add_middleware(CustomLoggingMiddleware)
 
-origins = [
-    # "*",
+origins = ["*",
            "http://localhost:3000"]
 
 app.add_middleware(
@@ -150,6 +190,7 @@ async def startup_event():
         try:
             # Delete all records from each table
             # from sqlalchemy import delete
+            # await conn.run_sync(HttpRequestLog.__table__.drop)
 
             # for table in reversed(Base.metadata.sorted_tables):
             #     await conn.execute(delete(table))
@@ -164,7 +205,7 @@ async def startup_event():
 # Include Routers
 app.include_router(user_router.router, prefix="/dashboard/users", tags=["users"])
 app.include_router(ambulance_router.router, prefix="/dashboard/ambulance", tags=["ambulances"])
-app.include_router(account_router.router, prefix="/dashboard/accounts", tags=["accounts"])
+# app.include_router(account_router.router, prefix="/dashboard/accounts", tags=["accounts"])
 app.include_router(hospital_router.router, prefix="/dashboard/hospitals", tags=["hospitals"])
 app.include_router(blood_router.router, prefix="/dashboard/blood", tags=["blood"])
 

@@ -47,9 +47,9 @@ def get_session_id_from_cookie(sessionId: str = Cookie(None)):
 async def validate_session_id(db: AsyncSession = Depends(get_db), sessionId: str = Cookie(None)):
     if not sessionId:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session ID missing")
+    async with get_db() as db:
+        user_id = await session_service.get_user_id_from_session(db, sessionId)
+        if user_id is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired session")
 
-    user_id = await session_service.get_user_id_from_session(db, sessionId)
-    if user_id is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired session")
-
-    return user_id
+        return user_id

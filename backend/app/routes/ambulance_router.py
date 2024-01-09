@@ -24,7 +24,8 @@ async def create_ambulance(
     csrf_token: str = Depends(csrf_protect.validate_csrf)
 ):
     try:
-        return await ambulance_service.create_ambulance(db, ambulance)
+        async with get_db() as db:
+            return await ambulance_service.create_ambulance(db, ambulance)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -36,7 +37,8 @@ async def read_ambulances(
     user_id: str = Depends(validate_session_id)
 ):
     try:
-        return await ambulance_service.get_all_ambulances(db, skip=skip, limit=limit)
+        async with get_db() as db:
+            return await ambulance_service.get_all_ambulances(db, skip=skip, limit=limit)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -47,10 +49,11 @@ async def read_ambulance(
     user_id: str = Depends(validate_session_id)
 ):
     try:
-        ambulance = await ambulance_service.get_ambulance(db, ambulance_id)
-        if ambulance is None:
-            raise HTTPException(status_code=404, detail="Ambulance not found")
-        return ambulance
+        async with get_db() as db:
+            ambulance = await ambulance_service.get_ambulance(db, ambulance_id)
+            if ambulance is None:
+                raise HTTPException(status_code=404, detail="Ambulance not found")
+            return ambulance
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -63,10 +66,11 @@ async def update_ambulance(
     csrf_token: str = Depends(csrf_protect.validate_csrf)
 ):
     try:
-        updated_ambulance = await ambulance_service.update_ambulance(db, ambulance_id, ambulance)
-        if updated_ambulance is None:
-                        raise HTTPException(status_code=404, detail="Ambulance not found")
-        return updated_ambulance
+        async with get_db() as db:
+            updated_ambulance = await ambulance_service.update_ambulance(db, ambulance_id, ambulance)
+            if updated_ambulance is None:
+                            raise HTTPException(status_code=404, detail="Ambulance not found")
+            return updated_ambulance
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -78,10 +82,11 @@ async def delete_ambulance(
     csrf_token: str = Depends(csrf_protect.validate_csrf)
 ):
     try:
-        success = await ambulance_service.delete_ambulance(db, ambulance_id)
-        if not success:
-            raise HTTPException(status_code=404, detail="Ambulance not found")
-        return {"message": "Ambulance successfully deleted"}
+        async with get_db() as db:
+            success = await ambulance_service.delete_ambulance(db, ambulance_id)
+            if not success:
+                raise HTTPException(status_code=404, detail="Ambulance not found")
+            return {"message": "Ambulance successfully deleted"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     

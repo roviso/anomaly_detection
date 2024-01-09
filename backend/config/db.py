@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
 from typing import AsyncIterator
 from config.settings import projectSettings
+from contextlib import asynccontextmanager
+
 
 # Asynchronous database URL
 SQLALCHEMY_DATABASE_URL = projectSettings.DATABASE_URL
@@ -28,6 +30,7 @@ async def get_session():
         await session.close()
 
 # DB getter for dependency injection
+@asynccontextmanager
 async def get_db() -> AsyncIterator[AsyncSession]:
     async with async_session() as session:
         yield session

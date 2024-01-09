@@ -21,8 +21,9 @@ async def read_hospitals(request: Request,skip: int = 0, limit: int = 100,user_i
         raise HTTPException(status_code=401, detail="Invalid or expired session")
 
     try:
-        hospitals = await hospital_service.get_all_hospitals(db, skip=skip, limit=limit)
-        return hospitals
+        async with get_db() as db:
+            hospitals = await hospital_service.get_all_hospitals(db, skip=skip, limit=limit)
+            return hospitals
     
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -74,8 +75,9 @@ async def create_hospital(
         oxygen_support_available=oxygen_support_available,
         available_blood=available_blood
     )
-    created_hospital = await hospital_service.create_hospital(db, hospital_data)
-    return created_hospital
+    async with get_db() as db:
+        created_hospital = await hospital_service.create_hospital(db, hospital_data)
+        return created_hospital
 
 
     # try:
@@ -96,11 +98,12 @@ async def read_hospital(
         user_id: str = Depends(validate_session_id)
     ):
     try:
-        hospital = await hospital_service.get_hospital(db, hospital_id)
-        # print("hospital is: ", hospital.__dict__)
-        if hospital is None:
-            raise HTTPException(status_code=404, detail="Hospital not found")
-        return hospital
+        async with get_db() as db:
+            hospital = await hospital_service.get_hospital(db, hospital_id)
+            # print("hospital is: ", hospital.__dict__)
+            if hospital is None:
+                raise HTTPException(status_code=404, detail="Hospital not found")
+            return hospital
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -151,10 +154,11 @@ async def update_hospital(
         oxygen_support_available=oxygen_support_available,
         available_blood=available_blood
     )
-    updated_hospital = await hospital_service.update_hospital(db, hospital_id, hospital_data)
-    if updated_hospital is None:
-        raise HTTPException(status_code=404, detail="Hospital not found")
-    return updated_hospital
+    async with get_db() as db:
+        updated_hospital = await hospital_service.update_hospital(db, hospital_id, hospital_data)
+        if updated_hospital is None:
+            raise HTTPException(status_code=404, detail="Hospital not found")
+        return updated_hospital
 
 @router.delete("/hospitals/{hospital_id}/delete", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_hospital(
@@ -164,9 +168,10 @@ async def delete_hospital(
         csrf_token: str = Depends(csrf_protect.validate_csrf)
     ):
     try:
-        success = await hospital_service.delete_hospital(db, hospital_id)
-        if not success:
-            raise HTTPException(status_code=404, detail="Hospital not found")
-        return {"message": "Hospital successfully deleted"}
+        async with get_db() as db:
+            success = await hospital_service.delete_hospital(db, hospital_id)
+            if not success:
+                raise HTTPException(status_code=404, detail="Hospital not found")
+            return {"message": "Hospital successfully deleted"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
