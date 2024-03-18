@@ -31,6 +31,7 @@ const Register = () => {
             formData.append('email', email);
             formData.append('username', username);
             formData.append('password', password);
+            console.log("Using csrfToken: ",csrfToken);
 
             const response = await axios.post('/dashboard/users/create', formData, {
                 headers: {

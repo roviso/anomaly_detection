@@ -1,1 +1,10 @@
-.DS_Store
+models
+node_modules
+*.log
+**.txt
+__pycache__
+*.DS_Store
+**__pycache**__
+**.ipynb_checkpoints
+**.pth
+**.joblib

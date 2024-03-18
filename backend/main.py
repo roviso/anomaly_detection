@@ -5,7 +5,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.future import select
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from fastapi_csrf_protect import CsrfProtect
 from config.settings import authconfig
 from config.db import engine, Base, get_db
 from app.routes import user_router, ambulance_router, hospital_router, blood_router
@@ -25,7 +24,7 @@ from urllib.parse import parse_qs
 
 
 # Configure logging
-log_file = "log.txt"
+log_file = "logs/log.txt"
 # Main logger configuration
 logging.basicConfig(
     level=logging.WARNING,  # Set a higher log level if you want less verbosity
@@ -38,7 +37,7 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 # Configure a separate logger for middleware
-middleware_log_file = "middleware_log.txt"
+middleware_log_file = "logs/middleware_log.txt"
 middleware_logger = logging.getLogger("middleware_logger")
 middleware_logger.setLevel(logging.INFO)
 middleware_logger_handler = RotatingFileHandler(middleware_log_file, maxBytes=10000000, backupCount=5)
@@ -158,7 +157,8 @@ class CustomLoggingMiddleware(BaseHTTPMiddleware):
 app = FastAPI()
 app.add_middleware(CustomLoggingMiddleware)
 
-origins = ["*",
+origins = [
+    # "*",
            "http://localhost:3000"]
 
 app.add_middleware(
@@ -177,7 +177,15 @@ app.add_middleware(
 )
 
 # # Wrap the FastAPI app with CustomASGIApp
-# app = CustomASGIApp(app)
+async def load_logs_to_db(file_path: str):
+    with open(file_path, 'r') as file:
+        async with get_db() as db:
+            for line in file:
+                log_data = get_log_data(line)
+                if log_data:
+                    log_entry = HttpRequestLog(**log_data)
+                    db.add(log_entry)
+            await db.commit()
 
 
 @app.on_event("startup")
@@ -197,6 +205,9 @@ async def startup_event():
 
             #     await conn.execute(select(1))
             await conn.execute(select(1))
+            # Example logs
+            await load_logs_to_db('logs/non_anomaly.txt')
+
             # logger.info("Database connection established")
         except SQLAlchemyError as e:
             # logger.error(f"Database connection failed: {e}")

@@ -44,6 +44,7 @@ async def get_csrf_token(response: Response):
     return token
 
 
+
 @router.post("/login", response_model= User )
 async def login(response: Response, request: Request, username: str = Form(...), password: str= Form(...) , db: Session = Depends(get_db)):
 
@@ -106,6 +107,22 @@ async def read_user_detail( user_id: int = Depends(validate_session_id), db: Ses
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return user
 
+# @router.post("/create", response_model=User, status_code=status.HTTP_201_CREATED)
+# async def create_user(
+#         email: EmailStr = Form(...),
+#         username: constr(min_length=3, max_length=50) = Form(...), 
+#         password: constr(min_length=6, max_length=50) = Form(...),
+#         db: Session = Depends(get_db), 
+#         csrf_token: str = Depends(csrf_protect.validate_csrf)
+#     ):
+#     user_data = UserCreate(email=email, is_active=True, username=username, password=password)    
+#     try:
+#         async with get_db() as db:
+#             created_user = await user_service.create_user(db, user_data)
+#             return created_user
+#     except Exception as e:
+#         raise HTTPException(status_code=400, detail=str(e))
+    
 @router.post("/create", response_model=User, status_code=status.HTTP_201_CREATED)
 async def create_user(
         email: EmailStr = Form(...),
