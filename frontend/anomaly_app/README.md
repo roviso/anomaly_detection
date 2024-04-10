@@ -68,3 +68,12 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+"start": "react-scripts --openssl-legacy-provider start",
+"build": "react-scripts --openssl-legacy-provider build",
+
+
+
+Set-VMProcessor -VMName VirtualBox Host-Only Ethernet Adapter -ExposeVirtualizationExtensions $true

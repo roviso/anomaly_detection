@@ -35,3 +35,6 @@ your_project_name/
 ├── .gitignore           # Specifies intentionally untracked files to ignore
 ├── README.md            # Project overview and instructions
 └── docker-compose.yml   # Docker configuration for local development (optional)
+
+
+uvicorn main:app --reload

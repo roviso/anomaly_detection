@@ -28,7 +28,7 @@ cookie_params = CookieParameters(
     samesite="lax",  # or "none" for cross-site access if needed
 )
 
-# Initialize SessionCookie
+# Initialize SessionCookiep
 session_cookie = SessionCookie(
     cookie_name="sessionId",
     identifier="user_session",

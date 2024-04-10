@@ -117,7 +117,13 @@ class CustomLoggingMiddleware(BaseHTTPMiddleware):
 
         # Use asynchronous context manager to manage the database session
         async with get_db() as db:
-            user_id = await session_service.get_user_id_from_session(db,cookies['sessionId'])
+            if cookies:
+                try: 
+                    user_id = await session_service.get_user_id_from_session(db,cookies['sessionId'])
+                except:
+                    user_id = None
+            else:
+                user_id = None
 
             log_data = HttpRequestLogSchema(
                 client_host=client_host,
@@ -206,7 +212,7 @@ async def startup_event():
             #     await conn.execute(select(1))
             await conn.execute(select(1))
             # Example logs
-            await load_logs_to_db('logs/non_anomaly.txt')
+            # await load_logs_to_db('logs/non_anomaly.txt')
 
             # logger.info("Database connection established")
         except SQLAlchemyError as e:
