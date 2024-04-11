@@ -29,6 +29,7 @@ class LoginSchema:
         self.username = username
         self.password = password
 
+# Create a serializer instance for encoding/decoding token
 
 @router.get("/csrf_token", response_model=str)
 async def get_csrf_token(response: Response):
@@ -38,7 +39,8 @@ async def get_csrf_token(response: Response):
         key="fastapi-csrf-token",
         value=signed_token,
         httponly=True,  # Recommended to prevent access via JavaScript
-        samesite="None",  # Important for cross-origin requests
+        samesite="None",
+           # Important for cross-origin requests
         secure=True  # Recommended, send only over HTTPS
     )
     return token

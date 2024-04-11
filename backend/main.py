@@ -19,8 +19,16 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 # from starlette.requests import Request
 from starlette.responses import Response
 from app.models.log import HttpRequestLog
-
 from urllib.parse import parse_qs
+from ml.utils import extract_log_data, infer_anomaly,classify_anomaly,get_train_df
+from typing import List, Tuple
+
+
+class SharedState:
+    def __init__(self, one_hot_encoder=None, train_df=None):
+        self.one_hot_encoder = one_hot_encoder
+        self.train_df = train_df
+
 
 
 # Configure logging
@@ -45,7 +53,7 @@ middleware_logger_handler.setFormatter(logging.Formatter("%(message)s"))
 middleware_logger.addHandler(middleware_logger_handler)
 
 
-from typing import List, Tuple
+
 
 async def empty_receive() -> dict:
     return {'type': 'http.disconnect'}
@@ -64,8 +72,17 @@ def clone_request(request: Request) -> Request:
 class CustomLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next, db: Session = Depends(get_db)):
         start_time = time.time()
+
+               # Access shared state
+        shared_state = request.app.state.shared_state
+
         # Clone the request for logging purposes
         request_clone = clone_request(request)
+
+                # Extract log data from the request
+        # log_data = await extract_log_data(request_clone)
+        
+
         
         # Process the request   
         client_host = request.client.host
@@ -117,7 +134,11 @@ class CustomLoggingMiddleware(BaseHTTPMiddleware):
 
         # Use asynchronous context manager to manage the database session
         async with get_db() as db:
-            user_id = await session_service.get_user_id_from_session(db,cookies['sessionId'])
+            if "sessionId" in cookies:
+                user_id = await session_service.get_user_id_from_session(db,cookies['sessionId'])
+            else:
+
+                user_id = None
 
             log_data = HttpRequestLogSchema(
                 client_host=client_host,
@@ -148,18 +169,65 @@ class CustomLoggingMiddleware(BaseHTTPMiddleware):
             )
             middleware_logger.info(log_message)
             # Manually create a database session
-        
+            
+            #         # Check if the log data is anomalous
+            # is_anomalous = infer_anomaly("models/IsolationForest_model.pkl",shared_state.one_hot_encoder, shared_state.train_df,log_data.__dict__)
+            # print("Result for anomaly detection: ",is_anomalous )
+            # if is_anomalous:
+            #     # Handle anomalous request (log, alert, block, etc.)
+            #     # For demonstration, we'll just return a simple response
+            #     return Response(content="Anomalous activity detected", status_code=403)
+            
+            
         return new_response
 
 
 
+# Usage
+# data = asyncio.run(fetch_data())
+# Instead of asyncio.run(fetch_data()), directly await the coroutine
+
+    
+
+
+
+
+class AnomalyDetectionMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        print("Performing Anomaly detecion")
+        # Access shared state
+        shared_state = request.app.state.shared_state
+
+        # Clone the request for anomaly detection purposes
+        request_clone = clone_request(request)
+        
+        # Extract log data from the request
+        log_data = await extract_log_data(request_clone)
+        
+        # Check if the log data is anomalous
+        is_anomalous = infer_anomaly("models/IsolationForest_model.pkl",shared_state.one_hot_encoder, shared_state.train_df,log_data)
+        print("Result for anomaly detection: ",is_anomalous )
+        if is_anomalous:
+            # Handle anomalous request (log, alert, block, etc.)
+            # For demonstration, we'll just return a simple response
+            return Response(content="Anomalous activity detected", status_code=403)
+        
+        # If not anomalous, or if you decide to let it through, proceed with the request
+        # response = await call_next(request)
+        # return response
+    
+
 # Initialize the FastAPI app
 app = FastAPI()
-app.add_middleware(CustomLoggingMiddleware)
+
 
 origins = [
-    # "*",
+        # "*",
+            "http://127.0.0.1:3000",
            "http://localhost:3000"]
+
+
+app.add_middleware(CustomLoggingMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -169,6 +237,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+
 app.add_middleware(
     SessionMiddleware,
     secret_key=authconfig.SECRET_KEY,  # Use a strong secret key
@@ -176,16 +246,20 @@ app.add_middleware(
     https_only=False  # Set to `True` in production for HTTPS
 )
 
-# # Wrap the FastAPI app with CustomASGIApp
-async def load_logs_to_db(file_path: str):
-    with open(file_path, 'r') as file:
-        async with get_db() as db:
-            for line in file:
-                log_data = get_log_data(line)
-                if log_data:
-                    log_entry = HttpRequestLog(**log_data)
-                    db.add(log_entry)
-            await db.commit()
+
+# Add the Anomaly Detection Middleware to your FastAPI application
+# app.add_middleware(AnomalyDetectionMiddleware)
+
+# # # Wrap the FastAPI app with CustomASGIApp
+# async def load_logs_to_db(file_path: str):
+#     with open(file_path, 'r') as file:
+#         async with get_db() as db:
+#             for line in file:
+#                 log_data = get_log_data(line)
+#                 if log_data:
+#                     log_entry = HttpRequestLog(**log_data)
+#                     db.add(log_entry)
+#             await db.commit()
 
 
 @app.on_event("startup")
@@ -196,6 +270,8 @@ async def startup_event():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         try:
+            one_hot_encoder, train_df = await get_train_df()
+            app.state.shared_state = SharedState(one_hot_encoder, train_df)
             # Delete all records from each table
             # from sqlalchemy import delete
             # await conn.run_sync(HttpRequestLog.__table__.drop)
@@ -205,8 +281,11 @@ async def startup_event():
 
             #     await conn.execute(select(1))
             await conn.execute(select(1))
+            # async with get_db() as db:
+            #     data = await fetch_data(db)
+            #     train_df = get_train_df(data)
             # Example logs
-            await load_logs_to_db('logs/non_anomaly.txt')
+            # await load_logs_to_db('logs/non_anomaly.txt')
 
             # logger.info("Database connection established")
         except SQLAlchemyError as e:

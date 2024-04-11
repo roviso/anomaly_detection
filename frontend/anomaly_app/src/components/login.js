@@ -30,11 +30,11 @@ const Login = () => {
         axios.get('/dashboard/users/csrf_token', { withCredentials: true })
             .then(response => {
                 setCsrfToken(response.data);
-                console.log("Received response: ", response.data);
-                // Extract CSRF token from the response if needed
+                console.log("Received CSRF token:", response.data);
             })
             .catch(error => {
-                console.error("Error fetching CSRF token", error.response);
+                console.error("Error fetching CSRF token:", error.response);
+                // Log any error response received from the server
             });
     }, []);
     
