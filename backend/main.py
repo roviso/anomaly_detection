@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException,Request,Depends
+from fastapi import FastAPI, HTTPException,Request,Depends,Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -20,15 +20,17 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 from starlette.responses import Response
 from app.models.log import HttpRequestLog
 from urllib.parse import parse_qs
-from ml.utils import extract_log_data, infer_anomaly,classify_anomaly,get_train_df
-from typing import List, Tuple
-
+from ml.utils import extract_log_data, infer_anomaly,get_train_df
 
 class SharedState:
     def __init__(self, one_hot_encoder=None, train_df=None):
         self.one_hot_encoder = one_hot_encoder
         self.train_df = train_df
 
+
+# Replace these with your actual values
+GOOGLE_CLIENT_ID = "579884707101-g1p3u00e5hth3pel5h1mmui5dt76aol9.apps.googleusercontent.com"
+CLIENT_SECRETS_FILE = "app/anomaly_detection/backend/config/client_secret_579884707101-g1p3u00e5hth3pel5h1mmui5dt76aol9.apps.googleusercontent.com.json"
 
 
 # Configure logging
@@ -279,8 +281,8 @@ async def startup_event():
             # for table in reversed(Base.metadata.sorted_tables):
             #     await conn.execute(delete(table))
 
-            #     await conn.execute(select(1))
-            await conn.execute(select(1))
+            # #     await conn.execute(select(1))
+            # await conn.execute(select(1))
             # async with get_db() as db:
             #     data = await fetch_data(db)
             #     train_df = get_train_df(data)
@@ -303,6 +305,8 @@ app.include_router(blood_router.router, prefix="/dashboard/blood", tags=["blood"
 async def root():
     return {"message": "Hello World"}
 
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+

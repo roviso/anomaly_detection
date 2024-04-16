@@ -5,6 +5,7 @@ import Header from './components/Header';
 import LandingPage from './components/LandingPage';
 import Login from './components/login';
 import Register from './components/register';
+import Confirmation from './components/Confirmation';
 import Dashboard from './components/Dashboard';
 import HospitalDetails from './components/HospitalDetails';
 import HospitalForm from './components/HospitalForm';
@@ -27,6 +28,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/email-confirmation/:registrationToken" element={<Confirmation />} />
           <Route path="/account-detail" element={<AccountDetail />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/hospitals/profile/detail/:id" element={<HospitalDetails />} />

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from typing_extensions import Annotated
 from config.db import get_db
-from app.services import user_service, session_service
+from app.services import user_service, session_service, email_service
 from app.schemas.user import UserCreate, UserUpdate, User
 from app.schemas.token import CsrfConfig
 from pydantic import BaseModel, EmailStr, constr
@@ -31,6 +31,7 @@ class LoginSchema:
 
 # Create a serializer instance for encoding/decoding token
 
+
 @router.get("/csrf_token", response_model=str)
 async def get_csrf_token(response: Response):
     token, signed_token = csrf_protect.generate_csrf(secret_key=authconfig.CSRF_SECRET_KEY)
@@ -47,14 +48,99 @@ async def get_csrf_token(response: Response):
 
 
 
+
+@router.post("/register")
+async def register_user(request: Request, db: Session = Depends(get_db)):
+    print("_____________Registering_____________")
+    
+    # try:
+    data = await request.json()  # Extract data from the request body
+
+    print(f"user_data: {data}")
+    email = data.get("email")
+    username = data.get("username")
+    password = data.get("password")
+
+    # Generate unique registration token (You can use UUID or any other method)
+    registration_token = email_service.generate_unique_token()
+    # Create user with registration_token and is_google_account=False
+    user_data = UserCreate(
+        email=email,
+        username=username,
+        password=password,
+        registration_token=registration_token
+    )
+
+    async with get_db() as db:
+    # user_service.create_user(db, user_data)
+        created_user = await user_service.create_user(db, user_data)
+    print(created_user.__dict__,55555555555555555)
+
+
+    # Send registration email with the unique registration link
+    registration_link = f"http://localhost:3000/email-confirmation/{registration_token}"
+    email_service.send_registration_email(email, registration_link)
+
+    
+    # created_user = user_service.create_user(db, user_data)
+
+
+    return {"message": "Registration email sent successfully"}
+    # except Exception as e:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.get("/register-confirmation/{registration_token}")
+async def complete_registration(registration_token: str, db: Session = Depends(get_db)):
+    print("confirming the email...")
+    # Verify the registration token and complete the registration process
+
+    async with get_db() as db:
+        user = await user_service.get_user_by_registration_token(db, registration_token)
+        if user:
+            # Update user's is_google_account to True
+            await user_service.set_is_google_account(db, user.id, True)
+            return {"message": "Registration completed successfully"}
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid registration token")
+    
+
+
+
+@router.post("/google-auth", response_model=User)
+async def google_auth_route(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    # Assuming you have a way to identify if the request is from Google Auth
+    # For example, a special token or parameter in the request
+    if "token" not in request.json():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token not provided")
+    
+    token = request.json()["token"]
+
+    # Assuming you have a service method to validate and extract user info from the token
+    user_info = user_service.extract_user_info_from_google_token(token)
+
+    if user_info is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+    # Assuming you have a service method to create or get the user based on the user info
+    created_or_found_user = user_service.create_or_get_google_user(db, user_info)
+
+    return created_or_found_user
+
+
 @router.post("/login", response_model= User )
 async def login(response: Response, request: Request, username: str = Form(...), password: str= Form(...) , db: Session = Depends(get_db)):
 
-    print(request.headers,username,password)
+    print(request.headers,username,password,9999999)
     try:
         await csrf_protect.validate_csrf(request=request)
     except MissingTokenError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing or invalid CSRF token")
+    
+    print("CSRF VALIDATED SUCCESSFULLY")
     async with get_db() as db:
         authenticated_user = await user_service.login_user(db, username, password)
         if not authenticated_user:
@@ -124,22 +210,40 @@ async def read_user_detail( user_id: int = Depends(validate_session_id), db: Ses
 #             return created_user
 #     except Exception as e:
 #         raise HTTPException(status_code=400, detail=str(e))
-    
+
 @router.post("/create", response_model=User, status_code=status.HTTP_201_CREATED)
-async def create_user(
-        email: EmailStr = Form(...),
-        username: constr(min_length=3, max_length=50) = Form(...), 
-        password: constr(min_length=6, max_length=50) = Form(...),
-        db: Session = Depends(get_db), 
-        csrf_token: str = Depends(csrf_protect.validate_csrf)
-    ):
-    user_data = UserCreate(email=email, is_active=True, username=username, password=password)    
+async def create_user_route(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    print("Creating User...")
     try:
-        async with get_db() as db:
+        data = await request.json()  # Extract data from the request body
+        token = data.get("token")  # Get the token from the request body
+        print(f'the data: {data}')
+
+        print(f'the token: {token}')
+        if token:
+            # Extract user information from the token
+            user_info = user_service.extract_user_info_from_google_token(token)
+            if user_info:
+                # Create or get the user based on the extracted user info
+                created_or_found_user = user_service.create_or_get_google_user(db, user_info)
+                return created_or_found_user
+            else:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        else:
+            # Regular sign-up process
+            user_data = UserCreate(
+                email=data["email"],
+                username=data["username"],
+                password=data["password"]
+            )
             created_user = await user_service.create_user(db, user_data)
             return created_user
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
 
 # Similarly, update other routes
 @router.put("/{user_id}/update", response_model=User)

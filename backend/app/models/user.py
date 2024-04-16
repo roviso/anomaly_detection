@@ -9,4 +9,6 @@ class User(Base, IDModelMixin, DateTimeModelMixin):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     password = Column(String)
-    is_active = Column(Boolean(), default=True)
+    is_active = Column(Boolean(), default=False)
+    # is_google_account = Column(Boolean, default=False)  # Add this line
+    registration_token = Column(String, unique=True, nullable=True)

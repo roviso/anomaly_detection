@@ -5,11 +5,12 @@ from app.schemas.common import IDModelMixin, DateTimeModelMixin
 
 class UserBase(BaseModel):
     email: EmailStr
-    is_active: bool = True
+    is_active: bool = False
 
 class UserCreate(UserBase):
     username: constr(min_length=3, max_length=50)
     password: constr(min_length=6, max_length=50)
+    registration_token: str
 
 class UserUpdate(UserBase):
     username: constr(min_length=3, max_length=50) = None
