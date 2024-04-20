@@ -2,6 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../utils/axiosConfig';
 import { Link, useParams } from 'react-router-dom';
+import './EditAmbulance.css';
+
+
 
 const EditAmbulance = () => {
     const { hospitalId } = useParams();

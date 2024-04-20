@@ -2,6 +2,7 @@
 import React, {useEffect, useState } from 'react';
 import axios from '../utils/axiosConfig';
 import { useParams } from 'react-router-dom';
+import './AddAmbulance.css';
 
 const AddAmbulance = () => {
     const { hospitalId } = useParams();

@@ -13,6 +13,7 @@ import EditAmbulance from './components/EditAmbulance';
 import EditAmbulanceForm from './components/EditAmbulanceForm'; // Create this file
 import AddAmbulance from './components/AddAmbulance';
 import EditBlood from './components/EditBlood';
+import EditBloodForm from './components/EditBloodForm';
 import AddBlood from './components/AddBlood';
 import HospitalEdit from './components/HospitalEdit';
 import AccountDetail from './components/AccountDetail';
@@ -42,6 +43,7 @@ function App() {
 
           <Route path="/hospitals/:hospitalId/edit-blood" element={<EditBlood />} />
           <Route path="/hospitals/:hospitalId/add-blood" element={<AddBlood />} />
+          <Route path="/hospitals/:hospitalId/edit-blood/:bloodId" element={<EditBloodForm />} />
           {/* Define routes for other components as needed */}
         </Routes>
     </Router>

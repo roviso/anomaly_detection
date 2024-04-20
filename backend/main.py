@@ -7,7 +7,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from config.settings import authconfig
 from config.db import engine, Base, get_db
-from app.routes import user_router, ambulance_router, hospital_router, blood_router
+from app.routes import user_router, ambulance_router, hospital_router, blood_router, detection_router
 from app.services import log_service, session_service
 from app.schemas.log import HttpRequestLogSchema
 import time
@@ -21,11 +21,12 @@ from starlette.responses import Response
 from app.models.log import HttpRequestLog
 from urllib.parse import parse_qs
 from ml.utils import extract_log_data, infer_anomaly,get_train_df
-
-class SharedState:
-    def __init__(self, one_hot_encoder=None, train_df=None):
-        self.one_hot_encoder = one_hot_encoder
-        self.train_df = train_df
+from app.state import SharedState
+# class SharedState:
+#     def __init__(self, one_hot_encoder=None, train_df=None):
+#         self.one_hot_encoder = one_hot_encoder
+#         self.train_df = train_df
+from app.app import get_application
 
 
 # Replace these with your actual values
@@ -220,8 +221,8 @@ class AnomalyDetectionMiddleware(BaseHTTPMiddleware):
     
 
 # Initialize the FastAPI app
-app = FastAPI()
-
+# app = FastAPI()
+app = get_application()
 
 origins = [
         # "*",
@@ -274,6 +275,9 @@ async def startup_event():
         try:
             one_hot_encoder, train_df = await get_train_df()
             app.state.shared_state = SharedState(one_hot_encoder, train_df)
+            # print(one_hot_encoder, train_df )
+            # print("=)))(((*&&&+++@@@))")
+            # print(app.state.shared_state )
             # Delete all records from each table
             # from sqlalchemy import delete
             # await conn.run_sync(HttpRequestLog.__table__.drop)
@@ -293,6 +297,13 @@ async def startup_event():
         except SQLAlchemyError as e:
             # logger.error(f"Database connection failed: {e}")
             raise HTTPException(status_code=500, detail="Could not connect to the database")
+
+
+def get_application() -> FastAPI:
+    return app
+
+
+app.include_router(detection_router.router, prefix="/detect_anomaly", tags=["anomaly detection"])
 
 # Include Routers
 app.include_router(user_router.router, prefix="/dashboard/users", tags=["users"])

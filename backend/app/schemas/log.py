@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, Dict
 
+from datetime import datetime
 class HttpRequestLogSchema(BaseModel):
     client_host: str
     request_time: float
@@ -17,3 +18,13 @@ class HttpRequestLogSchema(BaseModel):
     body: Dict
     response_status: int
     process_time: float
+
+
+class AnomalyDetectionResultSchema(BaseModel):
+    log_id: int
+    is_anomaly: bool
+    model_name: str
+    prediction_date: Optional[datetime] = None
+
+    class Config:
+        orm_mode = True

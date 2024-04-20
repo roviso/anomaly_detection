@@ -20,8 +20,6 @@ from typing import List, Tuple
 
 
 
-
-
 def clone_request(request: Request) -> Request:
     async def receive() -> dict:
         body = await request.body()
@@ -182,6 +180,10 @@ def inference_preprocess_data(one_hot_encoder,log_data):
         if feature not in df.columns:
             df[feature] = 'Unknown'
 
+    print(one_hot_encoder)
+
+    print("_________________________________")
+    print(df[categorical_features])
     # Apply one-hot encoding to the categorical features
     encoded_df = pd.DataFrame(one_hot_encoder.transform(df[categorical_features]).toarray(), columns=one_hot_encoder.get_feature_names_out())
 
@@ -264,11 +266,6 @@ async def get_train_df():
 
 
 def infer_anomaly(model_path,one_hot_encoder, train_df,log_instance):
-    # Create a HttpRequestLog instance from the log string
-    # log_instance = create_http_request_log_instance_from_string(log_string)
-    # if log_instance is None:
-    #     return "Invalid log format"
-
     # Preprocess the data
     df = inference_preprocess_data(one_hot_encoder,log_instance)
 
@@ -284,9 +281,9 @@ def infer_anomaly(model_path,one_hot_encoder, train_df,log_instance):
 
     # The prediction for the new data will be the last element
     if prediction[-1] == -1:
-        return "Anomalous log detected"
+        return True
     else:
-        return "Normal log"
+        return False
     
 
 

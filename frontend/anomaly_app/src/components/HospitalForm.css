@@ -1,54 +1,62 @@
-/* HospitalForm.css */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
 .hospital-form-container {
-    max-width: 600px;
-    margin: 20px auto;
+    max-width: 800px;
+    margin: auto;
     padding: 20px;
-    background-color: #f3f3f3;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.hospital-form-container h1 {
-    text-align: center;
-    color: #333;
+form {
+    display: flex;
+    flex-direction: column;
 }
 
-.hospital-form-container form {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    align-items: center;
+.form-row {
+    display: flex;
+    justify-content: space-between;
 }
 
-.hospital-form-container input[type="text"],
-.hospital-form-container input[type="number"] {
+.form-row input {
+    width: 48%; /* Adjust as needed */
+}
+
+input[type="text"],
+input[type="number"],
+input[type="checkbox"] {
+    margin-bottom: 10px;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 16px;
 }
 
-.hospital-form-container input[type="checkbox"] {
-    margin-right: 5px;
-}
-
-.hospital-form-container label {
-    display: flex;
-    align-items: center;
-}
-
-.hospital-form-container button {
-    grid-column: span 2;
+button {
     padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
     border: none;
     border-radius: 4px;
+    background-color: #007bff;
+    color: white;
     cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.2s;
 }
 
-.hospital-form-container button:hover {
+button:hover {
     background-color: #0056b3;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .hospital-form-container {
+        padding: 20px 10px;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-row input {
+        width: 100%;
+    }
 }

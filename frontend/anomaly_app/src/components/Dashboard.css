@@ -1,14 +1,14 @@
-/* src/components/Dashboard.css */
-
 .dashboard-container {
     padding: 20px;
     max-width: 1200px;
     margin: auto;
+    font-family: Arial, sans-serif;
 }
 
 .dashboard-container h1 {
     color: #333;
     margin-bottom: 20px;
+    text-align: center;
 }
 
 .add-hospital-link {
@@ -22,7 +22,32 @@
     border-radius: 4px;
 }
 
-/* Adjusted styling for action buttons */
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.hospital-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    padding: 20px;
+    width: calc(33.3333% - 20px);
+    box-sizing: border-box;
+}
+
+.hospital-card h2 {
+    margin-top: 0;
+    color: #2196F3; /* Blue */
+}
+
+.hospital-card p {
+    margin: 10px 0;
+    color: #333;
+}
+
 .action-button {
     background-color: #2196F3; /* Blue */
     color: white;
@@ -30,60 +55,27 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    margin-right: 10px;
+    margin-top: 10px;
     border-radius: 4px;
 }
 
-.table-container {
-    overflow-x: auto;
-}
+/* Responsive styles */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 10px;
+    }
 
-table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-bottom: 20px;
-}
+    .dashboard-container h1 {
+        font-size: 1.5rem;
+    }
 
-table, th, td {
-    border: 1px solid #ddd;
-}
+    .add-hospital-link,
+    .action-button {
+        padding: 8px;
+        font-size: 14px;
+    }
 
-th, td {
-    text-align: left;
-    padding: 8px;
-}
-
-th {
-    background-color: #f2f2f2;
-    color: black;
-}
-
-tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-tr:hover {
-    background-color: #ddd;
-}
-
-.table-link {
-    color: #2196F3; /* Blue */
-    text-decoration: none;
-    margin-right: 10px;
-}
-
-
-.action-button {
-    padding: 5px 10px;
-    margin: 0 5px;
-    background-color: #007bff;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    display: inline-block;
-}
-
-.action-separator {
-    display: inline-block;
-    width: 10px; /* Adjust the spacing as needed */
+    .hospital-card {
+        width: 100%;
+    }
 }

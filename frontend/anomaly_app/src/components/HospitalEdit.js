@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axiosConfig';
 import { useParams, useNavigate } from 'react-router-dom';
-import './HospitalForm.css'; 
+import './HospitalEdit.css'; 
 
 const HospitalEdit = () => {
     const [hospital, setHospital] = useState({

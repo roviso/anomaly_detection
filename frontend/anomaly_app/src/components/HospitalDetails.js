@@ -25,9 +25,9 @@ const HospitalDetails = () => {
 
     return (
         <div className="hospital-details-container">
-            
+            <h1>{hospital.name}</h1>
             <div className="details-card">
-                <h1>{hospital.name}</h1>
+                
                 {/* Display all the fields of the hospital */}
                 <p><strong>Address:</strong> {hospital.address}</p>
                 <p><strong>Opening Hour:</strong> {hospital.opening_hour}</p>
@@ -49,7 +49,8 @@ const HospitalDetails = () => {
             </div>
     
             <div className="details-section">
-                <h3>Ambulance Details</h3>
+            <h3>Ambulance Details</h3>
+            <div className="details-table-container">
                 <table className="details-table">
                     <thead>
                         <tr>
@@ -69,14 +70,15 @@ const HospitalDetails = () => {
                             </tr>
                         ))}
                     </tbody>
-                </table>
-                <Link to={`/hospitals/${hospital.id}/edit-ambulance`} className="edit-link">
+                    </table>
+            </div>
+            <Link to={`/hospitals/${hospital.id}/edit-ambulance`} className="edit-link">
                 Show/Edit Ambulance
             </Link>
-            </div>
+        </div>
     
-            <div className="details-section">
-                <h3>Blood Details</h3>
+        <h3>Blood Details</h3>
+            <div className="details-table-container">
                 <table className="details-table">
                     <thead>
                         <tr>
@@ -92,8 +94,8 @@ const HospitalDetails = () => {
                             </tr>
                         ))}
                     </tbody>
-                </table>
-                <Link to={`/hospitals/${hospital.id}/edit-blood`} className="edit-link">
+                    </table>
+            <Link to={`/hospitals/${hospital.id}/edit-blood`} className="edit-link">
                 Show/Edit Blood
             </Link>
             </div>

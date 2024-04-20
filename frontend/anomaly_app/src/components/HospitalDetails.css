@@ -1,4 +1,3 @@
-/* src/components/HospitalDetails.css */
 .hospital-details-container {
     max-width: 800px;
     margin: auto;
@@ -6,11 +5,21 @@
 }
 
 .details-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
     background: #f9f9f9;
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.details-card p {
+    margin: 0;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 .details-section {
@@ -19,6 +28,10 @@
 
 .details-section h3 {
     margin-bottom: 15px;
+}
+
+.details-table-container {
+    overflow-x: auto;
 }
 
 .details-table {
@@ -49,4 +62,19 @@
 
 .edit-link:hover {
     background-color: #218838;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .hospital-details-container {
+        padding: 20px 10px;
+    }
+
+    .details-card, .details-section {
+        padding: 10px;
+    }
+
+    .details-card {
+        grid-template-columns: 1fr;
+    }
 }

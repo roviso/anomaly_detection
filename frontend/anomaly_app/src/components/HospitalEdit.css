@@ -1,6 +1,6 @@
 .hospital-edit-container {
     max-width: 800px;
-    margin: auto;
+    margin: 0 auto;
     padding: 20px;
     background-color: #f3f3f3;
     border-radius: 8px;
@@ -9,11 +9,12 @@
 
 .hospital-edit-container h1 {
     text-align: center;
+    margin-bottom: 20px;
 }
 
 .hospital-edit-form {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(2, 1fr); /* Display the form fields in two columns */
     gap: 15px;
 }
 
@@ -47,4 +48,15 @@
 
 .hospital-edit-form button:hover {
     background-color: #0056b3;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .hospital-edit-container {
+        padding: 20px 10px;
+    }
+
+    .hospital-edit-form {
+        grid-template-columns: 1fr; /* Display the form fields in a single column on smaller screens */
+    }
 }

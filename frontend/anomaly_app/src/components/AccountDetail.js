@@ -1,12 +1,13 @@
 // src/components/AccountDetail.js
 import React, { useEffect, useState, useContext } from 'react';
 import axios from '../utils/axiosConfig';
-import './AccountDetail.css';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import './AccountDetail.css';
 
 const AccountDetail = () => {
     const [userDetails, setUserDetails] = useState(null);
+    const [password, setPassword] = useState(''); // New state for password
     const [editMode, setEditMode] = useState(false);
     const [csrfToken, setCsrfToken] = useState('');
     const { user } = useContext(AuthContext); // Access the logged-in user's details
@@ -53,6 +54,8 @@ const AccountDetail = () => {
             const formData = new URLSearchParams();
             formData.append('email', userDetails.email);
             formData.append('username', userDetails.username);
+            formData.append('password', password); // Add password to form data
+
             // Add other fields as necessary
 
             const response = await axios.put(`/dashboard/users/${user.id}/update`, formData, {
@@ -65,6 +68,7 @@ const AccountDetail = () => {
 
             setUserDetails(response.data);
             setEditMode(false);
+            setPassword(''); // Clear password field after successful update
         } catch (error) {
             console.error("Error updating user details", error);
         }
@@ -87,15 +91,25 @@ const AccountDetail = () => {
                     <button onClick={handleEdit}>Edit</button>
                 </>
             ) : (
-                <form onSubmit={handleSubmit}>
-                    <input type="email" name="email" value={userDetails.email} onChange={handleChange} />
-                    <input type="text" name="username" value={userDetails.username} onChange={handleChange} />
-                    {/* Include other fields as necessary */}
+                <form onSubmit={handleSubmit} className="account-detail-form">
+                    <label>
+                        Email:
+                        <input type="email" name="email" value={userDetails.email} onChange={handleChange} />
+                    </label>
+                    <label>
+                        Username:
+                        <input type="text" name="username" value={userDetails.username} onChange={handleChange} />
+                    </label>
+                    <label>
+                        New Password:
+                        <input type="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="New password" />
+                    </label>
                     <button type="submit">Save</button>
                 </form>
             )}
         </div>
     );
 };
+
 
 export default AccountDetail;

@@ -1,8 +1,16 @@
-/* src/components/Login.css */
+/* Login.css */
+:root {
+    --color-white: #ffffff;
+    --color-light-grey: #f4f4f4;
+    --color-dark-grey: #ccc;
+    --color-black: #333333;
+    --color-blue: #3498db;
+    --color-dark-blue: #2980b9;
+}
 
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
+    background-color: var(--color-light-grey);
     margin: 0;
     display: flex;
     justify-content: center;
@@ -10,30 +18,41 @@ body {
     height: 100vh;
 }
 
-.container {
+.login {
     width: 300px;
     padding: 20px;
-    background-color: #fff;
+    background-color: var(--color-white);
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-form {
+.login__title {
+    font-size: 2rem;
+    color: var(--color-black);
+    margin-bottom: 20px;
+}
+
+.login__error {
+    color: red;
+    margin-bottom: 10px;
+}
+
+.login__form {
     display: flex;
     flex-direction: column;
 }
 
-input {
+.login__input {
     margin: 10px 0;
     padding: 10px;
     font-size: 16px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-dark-grey);
     border-radius: 4px;
 }
 
-button {
-    background-color: #3498db;
-    color: #fff;
+.login__button {
+    background-color: var(--color-blue);
+    color: var(--color-white);
     padding: 10px;
     font-size: 16px;
     border: none;
@@ -41,6 +60,23 @@ button {
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #2980b9;
+.login__button:hover {
+    background-color: var(--color-dark-blue);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .login {
+        width: 80%;
+    }
+
+    .login__title {
+        font-size: 1.5rem;
+    }
+
+    .login__input,
+    .login__button {
+        padding: 8px;
+        font-size: 14px;
+    }
 }

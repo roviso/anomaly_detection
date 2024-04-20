@@ -1,4 +1,3 @@
-// src/components/HospitalForm.js
 import React, { useEffect, useState } from 'react';
 import axios from '../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 const HospitalForm = () => {
     const [name, setName] = useState('');
     const [address, setAddress] = useState('');
-    // Add state for all other fields
     const [openingHour, setOpeningHour] = useState('');
     const [closingHour, setClosingHour] = useState('');
     const [contactNumber, setContactNumber] = useState('');
@@ -15,18 +13,12 @@ const HospitalForm = () => {
     const [province, setProvince] = useState('');
     const [district, setDistrict] = useState('');
     const [totalBeds, setTotalBeds] = useState('');
-    // const [totalIcuBeds, setTotalIcuBeds] = useState('');
-    // const [totalVentilators, setTotalVentilators] = useState('');
-    // const [totalIsolationBeds, setTotalIsolationBeds] = useState('');
-    // const [availableIcuBeds, setAvailableIcuBeds] = useState('');
-    // const [availableVentilators, setAvailableVentilators] = useState('');
-    // const [availableIsolationBeds, setAvailableIsolationBeds] = useState('');
-    const [totalIcuBeds] = useState('');
-    const [totalVentilators] = useState('');
-    const [totalIsolationBeds] = useState('');
-    const [availableIcuBeds] = useState('');
-    const [availableVentilators] = useState('');
-    const [availableIsolationBeds] = useState('');
+    const [totalIcuBeds, setTotalIcuBeds] = useState('');
+    const [totalVentilators, setTotalVentilators] = useState('');
+    const [totalIsolationBeds, setTotalIsolationBeds] = useState('');
+    const [availableIcuBeds, setAvailableIcuBeds] = useState('');
+    const [availableVentilators, setAvailableVentilators] = useState('');
+    const [availableIsolationBeds, setAvailableIsolationBeds] = useState('');
     const [oxygenSupportAvailable, setOxygenSupportAvailable] = useState(false);
     const [availableBlood, setAvailableBlood] = useState(false);
     const [csrfToken, setCsrfToken] = useState('');
@@ -48,7 +40,6 @@ const HospitalForm = () => {
             const formData = new URLSearchParams();
             formData.append('name', name);
             formData.append('address', address);
-            // Append all other fields to formData
             formData.append('opening_hour', openingHour);
             formData.append('closing_hour', closingHour);
             formData.append('contact_number', contactNumber);
@@ -79,24 +70,25 @@ const HospitalForm = () => {
     };
 
     return (
-        <div>
+        <div className="hospital-form-container">
             <h1>Add New Hospital</h1>
             <form onSubmit={handleSubmit}>
-                {/* Input fields for all hospital attributes */}
-                <input 
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Hospital Name"
-                    required
-                />
-                <input 
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Address"
-                    required
-                />
+                <div className="form-row">
+                    <input 
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Hospital Name"
+                        required
+                    />
+                    <input 
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Address"
+                        required
+                    />
+                </div>
                 <input 
                     type="text"
                     value={openingHour}

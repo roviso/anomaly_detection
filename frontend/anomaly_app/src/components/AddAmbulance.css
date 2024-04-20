@@ -1,0 +1,46 @@
+.add-ambulance-container {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+}
+
+.add-ambulance-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.add-ambulance-container form {
+    display: grid;
+    gap: 20px;
+}
+
+.add-ambulance-container label {
+    display: grid;
+    gap: 5px;
+}
+
+.add-ambulance-container input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.add-ambulance-container button {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+}
+
+.add-ambulance-container button:hover {
+    background-color: #218838;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .add-ambulance-container {
+        padding: 20px 10px;
+    }
+}
