@@ -17,6 +17,13 @@ async def get_user_by_registration_token(db: Session, registration_token: str) -
     return result.scalars().one()
 
 
+async def get_user_by_email(db: Session, email: str) -> UserModel:
+    # return db.query(UserModel).filter(UserModel.registration_token == registration_token).first()
+    result = await db.execute(select(UserModel).where(UserModel.email == email))
+    return result.scalars().one()
+
+
+
 async def set_is_google_account(db: Session, user_id: int, is_google_account: bool) -> None:
     db_user = await get_user(db, user_id)
     if db_user:

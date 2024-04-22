@@ -61,29 +61,35 @@ async def register_user(request: Request, db: Session = Depends(get_db)):
     username = data.get("username")
     password = data.get("password")
 
-    # Generate unique registration token (You can use UUID or any other method)
-    registration_token = email_service.generate_unique_token()
-    # Create user with registration_token and is_google_account=False
-    user_data = UserCreate(
-        email=email,
-        username=username,
-        password=password,
-        registration_token=registration_token
-    )
-
     async with get_db() as db:
-    # user_service.create_user(db, user_data)
-        created_user = await user_service.create_user(db, user_data)
-    print(created_user.__dict__,55555555555555555)
+        user = await user_service.get_user_by_email(db, email)
 
+        if user and user.is_active:
+            return {"message": "User Already Registered"}
+        elif user and not user.is_active:
+            registration_link = f"http://localhost:3000/email-confirmation/{user.registration_token}"
 
-    # Send registration email with the unique registration link
-    registration_link = f"http://localhost:3000/email-confirmation/{registration_token}"
+        else:
+            # Generate unique registration token (You can use UUID or any other method)
+            registration_token = email_service.generate_unique_token()
+            # Create user with registration_token and is_google_account=False
+            user_data = UserCreate(
+                email=email,
+                username=username,
+                password=password,
+                registration_token=registration_token
+            )
+
+            async with get_db() as db:
+            # user_service.create_user(db, user_data)
+                created_user = await user_service.create_user(db, user_data)
+            print(created_user.__dict__,55555555555555555)
+
+            # Send registration email with the unique registration link
+            registration_link = f"http://localhost:3000/email-confirmation/{registration_token}"
     email_service.send_registration_email(email, registration_link)
 
     
-    # created_user = user_service.create_user(db, user_data)
-
 
     return {"message": "Registration email sent successfully"}
     # except Exception as e:
