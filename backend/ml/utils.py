@@ -17,8 +17,8 @@ import httpagentparser
 from sklearn.preprocessing import OneHotEncoder
 import joblib
 from typing import List, Tuple
-
-
+import numpy as np
+from ml.autoencoder import Autoencoder
 
 def clone_request(request: Request) -> Request:
     async def receive() -> dict:
@@ -268,22 +268,60 @@ async def get_train_df():
 def infer_anomaly(model_path,one_hot_encoder, train_df,log_instance):
     # Preprocess the data
     df = inference_preprocess_data(one_hot_encoder,log_instance)
+    print(f"Loading model: {model_path}")
 
     # Load the trained model
     model = joblib.load(model_path)
 
     # As LOF needs the training data, concatenate the new instance with the training data
     # Assuming you have the training data DataFrame `train_df` stored or can load it
-    combined_df = pd.concat([train_df, df])
+    combined_df = pd.concat([train_df.sample(frac=0.1), df])
+
+    print(f"making prediction :{combined_df}")
 
     # Predict using LOF model
     prediction = model.fit_predict(combined_df)
 
+    print(f"the pridiction is: {prediction[-1]}")
     # The prediction for the new data will be the last element
     if prediction[-1] == -1:
         return True
     else:
         return False
+    
+
+def infer_autoencoder_anomaly(model_path, one_hot_encoder,train_df,log_instance):
+
+
+    df = inference_preprocess_data(one_hot_encoder,log_instance)
+    # data_tensor = torch.tensor(df.values.astype(np.float32))
+    data_tensor = torch.tensor(df.values.astype(np.float32))
+
+    input_data_tensor = torch.tensor(train_df.values.astype(np.float32))
+
+    # Parameters
+    input_size = input_data_tensor.shape[1]
+
+    # # Parameters
+    # input_size = data_tensor.shape[1]
+
+    # Load the trained model
+    model = Autoencoder(input_size)
+    model.load_state_dict(torch.load(model_path))
+    model.eval()
+
+    # Predict using the autoencoder model
+    reconstructed = model(data_tensor)
+    loss = nn.MSELoss()(reconstructed, data_tensor)
+    print("LOSS IS:",loss.item())
+
+    # A higher reconstruction loss indicates an anomaly
+    anomaly_threshold = 126795010000000000 # Define a threshold based on your understanding of the data
+    if loss.item() > anomaly_threshold:
+        return True
+    else:
+        return False
+
     
 
 

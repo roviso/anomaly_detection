@@ -68,10 +68,10 @@ async def detect_anomalies_log_string( model_name: str, log:str = Form(...) ,sha
 
 
 @router.post("/detect-anomalies")
-async def detect_anomalies(model_name: str, db: Session = Depends(get_db), shared_state: SharedState = Depends(get_shared_state)):
+async def detect_anomalies(model_name: str, db: Session = Depends(get_db), shared_state: SharedState = Depends(get_shared_state), offset: int = 0, limit:int = 20):
     # Here you would typically trigger the anomaly detection process
     async with get_db() as db:
-        result = await log_service.detect_anomalies_model(model_name, db, shared_state)
+        result = await log_service.detect_anomalies_model(model_name, db, shared_state,offset, limit)
 
     if result is None:
         raise HTTPException(status_code=404, detail="Anomaly detection failed or no data available")

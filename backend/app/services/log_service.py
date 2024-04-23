@@ -3,11 +3,12 @@ from sqlalchemy.future import select
 from app.models.log import HttpRequestLog, AnomalyDetectionResult
 from app.schemas.log import HttpRequestLogSchema, AnomalyDetectionResultSchema
 from typing import List
-from ml.utils import extract_log_data, infer_anomaly
+from ml.utils import extract_log_data, infer_anomaly,infer_autoencoder_anomaly
 from app.state import SharedState
 import re
 from datetime import datetime
 from typing import Dict, List, Any
+from sqlalchemy import desc
 
 
 async def create_http_request_log(db: Session, log_data: HttpRequestLogSchema):
@@ -55,12 +56,43 @@ async def get_log_by_id(db: Session, log_id: int) -> HttpRequestLog:
     return result.scalars().first()
 
 
-async def fetch_data(db: Session) -> List[HttpRequestLog]:
-    result = await db.execute(select(HttpRequestLog))
-                              # .offset(skip).limit(limit))
-    return result.scalars().all()
+# async def fetch_data(db: Session) -> List[HttpRequestLog]:
+#     result = await db.execute(select(HttpRequestLog))
+#                               # .offset(skip).limit(limit))
+#     return result.scalars().all()
 
 
+async def fetch_data(db: Session, model_path, offset: int = 0, limit:int = 20) -> List[HttpRequestLog]:
+    # Fetch logs ordered by request_time in descending order
+    logs = await db.execute(select(HttpRequestLog)
+                            .order_by(desc(HttpRequestLog.request_time))
+                            .limit(limit)
+                            .offset(offset))
+                            
+    
+    logs = logs.scalars().all()  # Convert the result proxy to a list
+    
+    # Filter out logs that have not been inferred using the model
+    inferred_logs = []
+    for log in logs:
+        # Check if the log has been inferred using the model
+        if not await is_log_inferred(db, log.id, model_path):
+            inferred_logs.append(log)
+    
+    return inferred_logs
+
+async def is_log_inferred(db: Session, log_id: int, model_path: str) -> bool:
+    # Check if there's an anomaly detection result for the given log ID and model
+    result = await db.execute(select(AnomalyDetectionResult)
+                              .filter_by(log_id=log_id, model_name=model_path))
+    anomaly_result = result.scalar_one_or_none()
+    
+    # If there's no result, or if it's not an anomaly, return False
+    if anomaly_result is None or not anomaly_result.is_anomaly:
+        return False
+    
+    # If it's an anomaly, return True
+    return True
 
 def get_log_data(log):
     
@@ -179,16 +211,22 @@ async def detect_anomalies_string(model_name: str, log_string: str, shared_state
 # Instead of asyncio.run(fetch_data()), directly await the coroutine
 
 
-async def detect_anomalies_model(model_name: str, db: Session, shared_state: SharedState) -> Dict[str, Any]:
+async def detect_anomalies_model(model_name: str, db: Session, shared_state: SharedState,offset: int = 0, limit:int = 20) -> Dict[str, Any]:
     # Define the path to your model based on the model_name
     model_path = None
     if model_name == "isolation_forest":
         model_path = "models/IsolationForest_model.pkl"
+    elif model_name == "lof":
+        model_path = "models/lof_model.pkl"
+    elif model_name == "svm":
+        model_path = "models/oc_svm_model.pkl"
+    elif model_name == "autoencoder":
+        model_path = "models/autoencoder_model.pth"
     else:
         return {"status": "Error", "message": "Unsupported model name"}
 
     # Fetch some log data to process
-    logs = await fetch_data(db)
+    logs = await fetch_data(db,model_name,offset,limit)
     if not logs:
         return {"status": "Error", "message": "No log data available for processing"}
 
@@ -197,8 +235,10 @@ async def detect_anomalies_model(model_name: str, db: Session, shared_state: Sha
     for log in logs:
         try:
             log_data = extract_db_log_data(log)
-            print(log_data,44444)
-            result = infer_anomaly(model_path, shared_state.one_hot_encoder, shared_state.train_df, log_data)
+            if model_name == "autoencoder":
+                result = infer_autoencoder_anomaly(model_path, shared_state.one_hot_encoder, shared_state.train_df, log_data)
+            else:
+                result = infer_anomaly(model_path, shared_state.one_hot_encoder, shared_state.train_df, log_data)
             is_anomalous = result
 
             print(is_anomalous,88888,logs[0].__dict__)

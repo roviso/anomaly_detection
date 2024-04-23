@@ -4,7 +4,7 @@ from app.models.user import User as UserModel
 from sqlalchemy.ext.asyncio import  AsyncSession
 from app.schemas.user import UserCreate, UserUpdate
 from app.utils.security import hash_password
-from typing import List
+from typing import List,Optional
 from passlib.context import CryptContext
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -17,10 +17,14 @@ async def get_user_by_registration_token(db: Session, registration_token: str) -
     return result.scalars().one()
 
 
-async def get_user_by_email(db: Session, email: str) -> UserModel:
-    # return db.query(UserModel).filter(UserModel.registration_token == registration_token).first()
+async def get_user_by_email(db: Session, email: str) -> Optional[UserModel]:
     result = await db.execute(select(UserModel).where(UserModel.email == email))
-    return result.scalars().one()
+    user = result.scalars().first()  # Retrieve the first user found
+
+    if user:
+        return user
+    else:
+        return None  # Return None if no user is found
 
 
 

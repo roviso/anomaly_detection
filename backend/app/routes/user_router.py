@@ -80,9 +80,8 @@ async def register_user(request: Request, db: Session = Depends(get_db)):
                 registration_token=registration_token
             )
 
-            async with get_db() as db:
-            # user_service.create_user(db, user_data)
-                created_user = await user_service.create_user(db, user_data)
+
+            created_user = await user_service.create_user(db, user_data)
             print(created_user.__dict__,55555555555555555)
 
             # Send registration email with the unique registration link
