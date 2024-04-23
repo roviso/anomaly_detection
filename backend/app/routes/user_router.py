@@ -48,10 +48,10 @@ async def get_csrf_token(response: Response):
 async def login(response: Response, request: Request, username: str = Form(...), password: str= Form(...) , db: Session = Depends(get_db)):
 
     print(request.headers,username,password)
-    try:
-        await csrf_protect.validate_csrf(request=request)
-    except MissingTokenError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing or invalid CSRF token")
+    # try:
+    #     await csrf_protect.validate_csrf(request=request)
+    # except MissingTokenError:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing or invalid CSRF token")
     async with get_db() as db:
         authenticated_user = await user_service.login_user(db, username, password)
         if not authenticated_user:

@@ -53,7 +53,7 @@ const Login = () => {
                     'X-CSRF-TOKEN': csrfToken, // Set the CSRF token header
                     // 'Content-Type': 'multipart/form-data' is set automatically when using FormData
                 },
-                withCredentials: true, // Necessary to include cookies with the request
+                // withCredentials: true, // Necessary to include cookies with the request
             });
     
             login(response.data); // Update the state/context

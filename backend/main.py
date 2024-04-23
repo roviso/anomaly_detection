@@ -118,7 +118,7 @@ class CustomLoggingMiddleware(BaseHTTPMiddleware):
 
         # Use asynchronous context manager to manage the database session
         async with get_db() as db:
-            user_id = await session_service.get_user_id_from_session(db,cookies['sessionId'])
+            # user_id = await session_service.get_user_id_from_session(db,cookies['sessionId'])
 
             log_data = HttpRequestLogSchema(
                 client_host=client_host,
@@ -156,7 +156,7 @@ class CustomLoggingMiddleware(BaseHTTPMiddleware):
 
 # Initialize the FastAPI app
 app = FastAPI()
-app.add_middleware(CustomLoggingMiddleware)
+#app.add_middleware(CustomLoggingMiddleware)
 
 origins = ["*",
            "http://localhost:3000"]
