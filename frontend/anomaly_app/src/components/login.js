@@ -8,7 +8,7 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [csrfToken, setCsrfToken] = useState('');
-    const [loginError, setLoginError] = useState('');
+    const [loginError] = useState('');
 
     const navigate = useNavigate();
     const { login } = useContext(AuthContext);

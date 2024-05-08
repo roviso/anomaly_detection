@@ -27,7 +27,7 @@ const Dashboard = () => {
     }, [user, navigate]);
 
     return (
-        <div className="dashboard-container">
+        <div className="dashboard-container" >
             <h1>Hospitals Dashboard</h1>
             <Link to="/create-hospital" className="add-hospital-link">
                 Add New Hospital

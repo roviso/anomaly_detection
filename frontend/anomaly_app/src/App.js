@@ -2,9 +2,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
-import LandingPage from './components/LandingPage';
-import Login from './components/login';
-import Register from './components/register';
+import LandingPage from './components/LandingPage/LandingPage.jsx';
+import Login from './components/LoginPage/LoginPage.jsx';
+import Register from './components/RegisterPage/RegisterPage.jsx';
 import Confirmation from './components/Confirmation';
 import Dashboard from './components/Dashboard';
 import HospitalDetails from './components/HospitalDetails';
